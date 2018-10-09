@@ -1,0 +1,9 @@
+{
+  "author": "Spotify",
+  "name": "ensemble",
+  "description": "collaborative playlist making",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "~4.16.0"
+  }
+}
