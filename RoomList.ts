@@ -1,0 +1,4 @@
+class RoomList{
+
+}
+export = RoomList;
