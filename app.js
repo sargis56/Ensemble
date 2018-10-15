@@ -1,13 +1,31 @@
+//import modules
 var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
-
+var websocket = require('ws');
 var querystring = require('querystring');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
+var exbars = require('exbars');
+
+
+//import classes
+// var Room = require('./Room.js');
+// var User = require('./User.js');
+// var Song = require('./Song.js');
+
+
+// var rooms = [];
+// var room = new Room("Test Name", "password");
+// rooms.push(room);
+
 var app = express();
-app.use(express.static(__dirname + '/public'))
-    .use(cookieParser());
+
+app.engine('hbs', exbars({defaultLayout: 'main'}));
+app.set('view engine', 'hbs');
+app.use(express.static(__dirname + '/public')).use(cookieParser());
+
+
 
 var generateRandomString = function (length) {
     var text = '';
@@ -19,14 +37,12 @@ var generateRandomString = function (length) {
     return text;
 };
 
-
-
 app.get('/jquery-3.3.1.min.js', function (req, res) {
     res.sendFile(__dirname + '/jquery-3.3.1.min.js');
 });
 
 var client_id = '2b7eab7f84fb470486ef8aafbe0715c4'; // Your client id
-var client_secret = 'SECRET'; // Your secret
+var client_secret = '00e168b4afb2401788422276f37224da'; // Your secret
 var redirect_uri = 'http://localhost:8080'; // Your redirect uri
 
 var stateKey = 'spotify_auth_state';
@@ -51,6 +67,7 @@ app.get('/login', function (req, res) {
 });
 
 
+
 app.get('/', function (req, res) {
 
     var code = req.query.code || null;
@@ -58,10 +75,12 @@ app.get('/', function (req, res) {
     var storedState = req.cookies ? req.cookies[stateKey] : null;
 
     if (state === null || state !== storedState) {
-        res.redirect('/#' +
-            querystring.stringify({
-                error: 'state_mismatch'
-            }));
+        // res.redirect('/#' +
+        //     querystring.stringify({
+        //         error: 'state_mismatch'
+        //     }));
+        res.render('loggedout', {title : "Please Log In", message : "you are logged out", layout: false });
+
     } else {
         res.clearCookie(stateKey);
         var authOptions = {
@@ -93,6 +112,16 @@ app.get('/', function (req, res) {
                 request.get(options, function (error, response, body) {
                     console.log(body);
                     console.log(access_token);
+
+                    var data = [];
+                    data['access_token'] = access_token; 
+                    data['title'] = "Logged In"; 
+                    data['layout'] = false; 
+                    data['username'] = body['id'];
+
+                    // res.redirect('/room');//.html' + ?access_token=' + access_token);
+                    res.render('loggedin', data)
+
                 });
 
                 // we can also pass the token to the browser to make requests from there
@@ -117,8 +146,11 @@ app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + '/lobby.html');
 });
 
-app.get('/Room', function (req, res) {
-    res.sendFile(__dirname + '/room.html');
+// app.get('/room.html', function (req, res) {
+//     res.sendFile(__dirname + '/room.html');
+// });
+app.get('/SearchView.js', function (req, res) {
+    res.sendFile(__dirname + '/SearchView.js');
 });
 
 console.log('Listening on 8080');
