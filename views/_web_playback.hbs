@@ -1,0 +1,58 @@
+<div>
+    <h1>Web Playback</h1>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+</div>
+
+<script>
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        const access_token2 = `{{access_token}}`; //= access_token;//'BQB5OHFRsGEiNRGkx7CasE62N8Z83l1UcOIu-m9jCjq8pXeaL32bZ5yASLaxSccDCSjcY5XodpwXWU3Y1885Y44coxnMlnxJx6cfUqZUaGKNLupLfeHcKj1gU_21zWJVS4JxWyf6oX-BuKx1C_hWMUCYSEJ0HSLSE8YrzHrmImaA';
+        const player = new Spotify.Player({
+            name: 'Ensemble Playback',
+            getOAuthToken: cb => { cb(access_token2); }
+        });
+
+        // Error handling
+        player.addListener('initialization_error', ({ message }) => { console.error(message); });
+        player.addListener('authentication_error', ({ message }) => { console.error(message); });
+        player.addListener('account_error', ({ message }) => { console.error(message); });
+        player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+        // Playback status updates
+        player.addListener('player_state_changed', state => { console.log(state); });
+
+        // Ready
+        player.addListener('ready', ({ device_id }) => {
+
+            //use this https://developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
+            //switch the device to this one.
+
+            //pause first then transfer
+        /**
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me/player',
+                headers: {
+                    'Authorization': 'Bearer ' + access_token2,
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    'device_ids': device_id,
+                    'play': true
+                }
+            }).done(function () { console.log("this device has playback"); });
+        */
+        //https://api.spotify.com/v1/me/player
+
+        //playback is ready for this browser window
+
+        console.log('Ready with Device ID', device_id);
+    });
+
+    // Not Ready
+    player.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+    });
+
+    // Connect to the player!
+    player.connect();
+};
+</script>

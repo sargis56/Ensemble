@@ -103,7 +103,7 @@ to the spotify login page, passing in our app credentials and a redirect url
 for it to redirect the users back to*/ 
 app.get('/login', function (req, res) {
 
-    var scope = 'user-read-private user-read-email';
+    var scope = 'streaming user-modify-playback-state user-read-private user-read-email';//["streaming", "user-read-birthdate", "user-read-email", "user-read-private"]
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
 

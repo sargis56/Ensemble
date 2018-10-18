@@ -5,6 +5,7 @@ var Room = /** @class */ (function () {
         this.roomPassword = roomPass;
     }
     Room.prototype.create = function () {
+        daniel: string = "hello";
     };
     Room.prototype.join = function (pass, newUser) {
         if (pass == this.roomPassword) {

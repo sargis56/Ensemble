@@ -14,9 +14,11 @@ class Room{
     }
 
     create(){
-
+        daniel: string = "hello";
     }
     
+    
+
     join (pass: String, newUser: User){
         if(pass == this.roomPassword){
             this.conotributors.push(newUser);
