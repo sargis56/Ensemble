@@ -120,12 +120,15 @@ app.get('/callback', function (req, res) {
     if(code === null){
 
     }else{
+        console.log(req.headers.host);
+        var redirect = "http://" + req.headers.host + "/callback";
+
         req.session.userAccessCode = code;
         var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
             form: {
                 code: code,
-                redirect_uri: redirect_uri,
+                redirect_uri: redirect,
                 grant_type: 'authorization_code'
             },
             headers: {
@@ -168,13 +171,15 @@ app.get('/login', function (req, res) {
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
 
+    console.log(req.headers.host);
+    var redirect = "http://" + req.headers.host + "/callback";
     // res.sendFile(__dirname + '/login.html');
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
             client_id: client_id,
             scope: scope,
-            redirect_uri: redirect_uri
+            redirect_uri: redirect
         }));
         //, state: state
 
