@@ -1,14 +1,18 @@
 <div>
     <h1>Web Playback</h1>
+    <button>Play/Pause</button>
+    <button>Skip</button>
+    
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </div>
 
 <script>
+
     window.onSpotifyWebPlaybackSDKReady = () => {
-        const access_token2 = `{{access_token}}`; //= access_token;//'BQB5OHFRsGEiNRGkx7CasE62N8Z83l1UcOIu-m9jCjq8pXeaL32bZ5yASLaxSccDCSjcY5XodpwXWU3Y1885Y44coxnMlnxJx6cfUqZUaGKNLupLfeHcKj1gU_21zWJVS4JxWyf6oX-BuKx1C_hWMUCYSEJ0HSLSE8YrzHrmImaA';
+        const access_token = `{{access_token}}`; //= access_token;//'BQB5OHFRsGEiNRGkx7CasE62N8Z83l1UcOIu-m9jCjq8pXeaL32bZ5yASLaxSccDCSjcY5XodpwXWU3Y1885Y44coxnMlnxJx6cfUqZUaGKNLupLfeHcKj1gU_21zWJVS4JxWyf6oX-BuKx1C_hWMUCYSEJ0HSLSE8YrzHrmImaA';
         const player = new Spotify.Player({
             name: 'Ensemble Playback',
-            getOAuthToken: cb => { cb(access_token2); }
+            getOAuthToken: cb => { cb(access_token); }
         });
 
         // Error handling
@@ -22,37 +26,82 @@
 
         // Ready
         player.addListener('ready', ({ device_id }) => {
+            var deviceIds = [];
+            deviceIds['device_ids'] = device_id;
 
             //use this https://developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
             //switch the device to this one.
 
             //pause first then transfer
-        /**
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me/player',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token2,
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    'device_ids': device_id,
-                    'play': true
+            
+            TransferPlayback(device_id).then( PausePlayback() );
+            
+
+
+            //https://api.spotify.com/v1/me/player
+
+            //playback is ready for this browser window
+
+
+            console.log('Ready with Device ID', device_id);
+            console.log(deviceIds);
+
+              
+            
+        });
+
+        // Not Ready
+        player.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+        });
+
+        // Connect to the player!
+        player.connect();
+    };
+
+    function TransferPlayback(device_id){
+        return new Promise((resolve, reject) => {
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open("PUT", "https://api.spotify.com/v1/me/player", true);
+            xhr2.setRequestHeader('Authorization' , 'Bearer ' + `{{access_token}}`);
+            xhr2.setRequestHeader('Content-Type', 'application/json')
+            xhr2.onload = function(e){
+                if(xhr2.readyState ===4){
+                    console.log(xhr2.responseText);
+                    resolve();
+                }else{
+                    console.log(xhr2.statusText);
+                    reject();
                 }
-            }).done(function () { console.log("this device has playback"); });
-        */
-        //https://api.spotify.com/v1/me/player
+            };
+            xhr2.onerror = function(e){
+                console.error(xhr2.statusText);
+                    reject();
+            };
+            xhr2.send("{\"device_ids\":[\""+device_id+"\"]}");
+        });
+    }
 
-        //playback is ready for this browser window
-
-        console.log('Ready with Device ID', device_id);
-    });
-
-    // Not Ready
-    player.addListener('not_ready', ({ device_id }) => {
-        console.log('Device ID has gone offline', device_id);
-    });
-
-    // Connect to the player!
-    player.connect();
-};
+    function PausePlayback(){
+        return new Promise((resolve, reject) =>{
+            var xhr = new XMLHttpRequest();
+            xhr.open("PUT", "https://api.spotify.com/v1/me/player/pause", true);
+            xhr.setRequestHeader('Authorization' , 'Bearer ' + `{{access_token}}`);
+            xhr.setRequestHeader('Content-Type', 'application/json')
+            xhr.onload = function(e){
+                if(xhr.readyState ===4){
+                    console.log(xhr.responseText);
+                    resolve();
+                }else{
+                    console.log(xhr.statusText);
+                    reject();
+                }
+            };
+            xhr.onerror = function(e){
+                console.error(xhr.statusText);
+                reject();
+            };
+            xhr.send(null);
+        });
+    }
 </script>

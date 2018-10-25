@@ -1,25 +1,25 @@
-<input type="text" id="searchQuery" placeholder="search"/> <button id="btn-search">Search</button>
+<input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
 <div id="results">
 
-<script>
-    $("#btn-search").bind('click', function(){
-        var searchQuery = $('#searchQuery').val();
-        console.log(access_token);
-        $.ajax({
-            url: 'https://api.spotify.com/v1/search',
-            headers: {
-                'Authorization': 'Bearer ' + access_token,
-                'Content-Type':'application/json'
-            },
-            data: {
-                'q': searchQuery,
-                'type': 'track'
-            }
-            }).done(function(data) {
+    <script>
+        $("#btn-search").bind('click', function () {
+            var searchQuery = $('#searchQuery').val();
+            console.log(access_token);
+            $.ajax({
+                url: 'https://api.spotify.com/v1/search',
+                headers: {
+                    'Authorization': 'Bearer ' + access_token,
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    'q': searchQuery,
+                    'type': 'track'
+                }
+            }).done(function (data) {
                 // console.log(data.tracks.items);
                 $('#results').html('');
 
-                $.each( data.tracks.items, function (index, track) {
+                $.each(data.tracks.items, function (index, track) {
 
                     var trackView = document.createElement("div");
                     var trackImage = document.createElement("image");
@@ -31,7 +31,7 @@
 
                     var trackTitle = document.createElement("span");
                     trackTitle.innerText = track.name;
-                    
+
                     trackView.appendChild(trackImage);
                     trackView.appendChild(trackTitle);
 
@@ -39,7 +39,6 @@
 
                 });
 
-            }
-        );
-    });
-</script>
+            });
+        });
+    </script>

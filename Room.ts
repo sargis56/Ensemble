@@ -1,41 +1,47 @@
-class Room{
+import User from './User';
+import Song from './Song';
 
-    roomName: String;
-    roomPassword :String;
+export default class Room {
+
+    roomId: string;
+    roomName: string;
+    roomPassword: string;
 
     admin: User;
-    conotributors: User[];
+    conotributors: User[] = [];
 
-    playlist: Song[];
+    blockedUsers: String[] = [];
 
-    constructor(roomN: String, roomPass: String){
+    playlist: Song[] = [];
+
+    constructor(roomN: string, roomPass: string, creator: User) {
         this.roomName = roomN;
         this.roomPassword = roomPass;
+        this.admin = creator;
+        this.roomId = roomN + "-" + this.generateRandomString(10);
     }
 
-    create(){
-        daniel: string = "hello";
-    }
-    
-    
-
-    join (pass: String, newUser: User){
-        if(pass == this.roomPassword){
-            this.conotributors.push(newUser);
-            return true;
-        }else{
-            return false;
-        }
+    userJoin( newUser: User) {
+        this.conotributors.push(newUser);
     }
 
-    exit(user: User){
+    userExit(user: User) {
         // this.conotributors.slice();
     }
 
-    addSong(newSong: Song){
+    addSong(newSong: Song) {
         this.playlist.push(newSong);
     }
 
+    generateRandomString(length: number) {
+        var text = '';
+        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    
+        for (var i = 0; i < length; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    };
+
 }
 
-export = Room;

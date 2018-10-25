@@ -7,14 +7,16 @@
     <script src="/jquery-3.3.1.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>{{title}}</title>
-    
-    <style>
-
-    </style>
+    <title>Document</title>
 </head>
 <body>
-    <h1>{{message}}</h1>
-    <a href="/login" class="btn btn-primary">Log In</a>
+    <script>
+        var access_token = `{{access_token}}`;
+        var refresh_token = `{{refresh_token}}`;
+
+    </script>
+    {{partial 'web_playback'}}
+    {{partial 'track_search'}}
+    {{partial 'playlist'}}
 </body>
 </html>

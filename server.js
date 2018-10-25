@@ -44,21 +44,32 @@ var exbars = require('exbars');
  * https://github.com/YoussefKababe/exbars
 */
 
+
+var session = require('express-session');
+/**
+ * 
+*/
+
 //end of module import
 
 
 //Import Custom Javascript Classes
 
-var Room = require('./Room.js');
-var RoomList = require('./RoomList.js');
-var User = require('./User.js');
-var Song = require('./Song.js');
+var User = require('./User');
+var Room = require('./Room');
+var Song = require('./Song');
+var RoomList = require('./RoomList').default;
+var UserList = require('./UserList').default;
+
 
 //End of Javascript Class Import;
 
 
-//Create Static Variables
+//Create Variables
 
+//use these instead of database
+var roomList = new RoomList();
+var users = new UserList();
 
 /**
  * Variables used for spotify app integration. These are found in the spotify app dashboard. 
@@ -66,10 +77,11 @@ var Song = require('./Song.js');
 */
 var client_id = '2b7eab7f84fb470486ef8aafbe0715c4'; 
 var client_secret = '52c420a710134fa5b102d6d5c3e6ad3e';
-var redirect_uri = 'http://localhost:8080';
+var redirect_uri = 'http://localhost:8080/callback';
 var stateKey = 'spotify_auth_state';
+var userSercretKey = 'user_secret_key'
 
-//End of static variables
+//End of variables
 
 
 //Server Setup
@@ -77,7 +89,10 @@ var app = express();
 
 app.engine('hbs', exbars({defaultLayout: 'main'}));
 app.set('view engine', 'hbs');
-app.use(express.static(__dirname + '/public')).use(cookieParser());
+app.use(
+    express.static(__dirname + '/public')).use(cookieParser()).use(session({
+        'secret': 'ensemble rocks'
+    }));
 
 
 var generateRandomString = function (length) {
@@ -94,52 +109,18 @@ app.get('/jquery-3.3.1.min.js', function (req, res) {
     res.sendFile(__dirname + '/jquery-3.3.1.min.js');
 });
 
-
-
-
-
-/*When the user's browser is directed to /login the webserver redirects them 
-to the spotify login page, passing in our app credentials and a redirect url
-for it to redirect the users back to*/ 
-app.get('/login', function (req, res) {
-
-    var scope = 'streaming user-modify-playback-state user-read-private user-read-email';//["streaming", "user-read-birthdate", "user-read-email", "user-read-private"]
-    var state = generateRandomString(16);
-    res.cookie(stateKey, state);
-
-    // res.sendFile(__dirname + '/login.html');
-    res.redirect('https://accounts.spotify.com/authorize?' +
-        querystring.stringify({
-            response_type: 'code',
-            client_id: client_id,
-            scope: scope,
-            redirect_uri: redirect_uri,
-            state: state
-        }));
-
-});
-
-
-
-app.get('/', function (req, res) {
-
+/**
+ * The callback url for spotify after login.
+ * If all is good we store neccessary variables in the session
+*/
+app.get('/callback', function (req, res) {
     var code = req.query.code || null;
     var state = req.query.state || null;
-    var storedState = req.cookies ? req.cookies[stateKey] : null;
 
-    if (state === null || state !== storedState) {
-        // res.redirect('/#' +
-        //     querystring.stringify({
-        //         error: 'state_mismatch'
-        //     }));
+    if(code === null){
 
-        /*User is not logged in. Direct them to the loggin view*/
-        res.render('loggedout', {title : "Please Log In", message : "you are logged out", layout: false });
-
-    } else {
-        
-        //User is logged in. request access code from spotify using authorization_code method
-        res.clearCookie(stateKey);
+    }else{
+        req.session.userAccessCode = code;
         var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
             form: {
@@ -154,39 +135,242 @@ app.get('/', function (req, res) {
         };
 
         request.post(authOptions, function (error, response, body) {
+
             if (!error && response.statusCode === 200) {
 
-                var access_token = body.access_token,
-                    refresh_token = body.refresh_token;
+                //store tokens in session
+                req.session.access_token = body.access_token;
+                console.log("Scopes ",body.scope);
+                console.log("Token type ",body.token_type);
+                req.session.refresh_token = body.refresh_token;
 
-                var options = {
-                    url: 'https://api.spotify.com/v1/me',
-                    headers: { 'Authorization': 'Bearer ' + access_token },
-                    json: true
-                };
+            }else{
 
-                // use the access token to access the Spotify Web API
-                request.get(options, function (error, response, body) {
-                    console.log(body);
-                    console.log(access_token);
+                // console.log(error);
+                // console.log(body);
+            }
+
+            res.redirect('/');
+
+        });
+        
+    }
+
+});
+
+
+/*When the user's browser is directed to /login the webserver redirects them 
+to the spotify login page, passing in our app credentials and a redirect url
+for it to redirect the users back to*/ 
+app.get('/login', function (req, res) {
+
+    var scope = "streaming user-modify-playback-state user-read-playback-state user-read-recently-played user-read-birthdate user-read-private user-read-email";//["streaming", "user-read-birthdate", "user-read-email", "user-read-private"]
+    var state = generateRandomString(16);
+    res.cookie(stateKey, state);
+
+    // res.sendFile(__dirname + '/login.html');
+    res.redirect('https://accounts.spotify.com/authorize?' +
+        querystring.stringify({
+            response_type: 'code',
+            client_id: client_id,
+            scope: scope,
+            redirect_uri: redirect_uri
+        }));
+        //, state: state
+
+});
+
+
+app.get('/', function (req, res) {
+
+    if(req.session.refresh_token){
+        console.log('user access code is saved in sesssion');
+        // console.log(req.session.refresh_token);
+
+        let refresh_token = req.session.refresh_token;
+        let access_token = req.session.access_token;
+        let user_id = "";
+        var code = req.session.userAccessCode;
+
+        //check if user with that access tokenalready exists
+        var user = users.getUserByAccessToken(access_token);
+        if(user === null){
+            //new user create them and log in
+
+            //get spotify user details
+            var options = {
+                url: 'https://api.spotify.com/v1/me',
+                headers: { 'Authorization': 'Bearer ' + access_token },
+                json: true
+            };
+
+            request.get(options, function (error, response, body) {
+
+                if(body.id === null){
+                    //error getting user details
+                    var data = [];
+                    data['error'] = "There was an error getting your user details from spotify";
+                    data['layout'] = false;
+                    res.render('loggedout', data);
+                }
+                else{
+                    user_id = body.id;
+
+                    //create user
+                    user = users.NewUser( user_id , access_token );
+                    console.log("new user recorded/updated");
+                    // console.log(user);
 
                     var data = [];
                     data['access_token'] = access_token; 
+        
                     data['title'] = "Logged In"; 
                     data['layout'] = false; 
-                    data['username'] = body['id'];
+                    res.render('loggedin', data);
 
-                    // res.redirect('/room');//.html' + ?access_token=' + access_token);
-                    res.render('loggedin', data)
+                }
+            });
 
-                });
-            } else {
-                res.redirect('/#' +
-                    querystring.stringify({
-                        error: 'invalid_token'
-                    }));
+
+        }else{
+            //returning user
+            console.log("user has returned");
+
+            //load page
+            var data = [];
+            data['access_token'] = access_token; 
+
+            data['title'] = "Logged In"; 
+            data['layout'] = false; 
+            res.render('loggedin', data);
+        }
+        
+    }else{
+        console.log('user access code is not saved in session. user needs to login');
+        res.render('loggedout', {title : "Please Log In", message : "you are logged out", layout: false });
+    }
+
+});
+
+app.get('/room', function (req, res){
+
+    //check that we are logged in.
+    if(req.session.access_token){
+        //logged in
+        var user = users.getUserByAccessToken(req.session.access_token);
+
+        //check if user is admin of any rooms
+        var room = roomList.getAdminsRoom(user);
+        var isAdmin = false;
+
+        if(room === null){
+            isAdmin = false;
+            room = roomList.getContributorsRoom(user);
+            if(room === null){
+                //user is not in any room
+                console.log("user is not in any room");
+                res.redirect('/');
             }
-        });
+        }else{
+            isAdmin = true;
+        }
+        if(room === null){
+
+        }else{
+            var data = [];
+            data['access_token'] = req.session.access_token;
+            data['refresh_token'] = req.session.refresh_token;
+            data['roomId'] = req.session.roomId;
+            data['isAdmin'] = isAdmin;
+            data['layout'] = false;
+            if(isAdmin){
+                res.render('room_admin', data);
+            }else{
+                res.render('room', data);
+            }
+        }
+
+    }else{
+        //not logged in. not supposed to be here
+        console.log("user is not logged in");
+        res.redirect('/');
+    }
+
+    
+});
+
+
+app.get('/createRoom', function(req, res){
+    let roomName = req.query.roomName || null;
+    let roomPassword = req.query.roomPassword || null;
+    let userAccessToken =  req.query.userAccessToken;//=  //req.query.user secret or something
+    
+    var data = {};
+    if( roomName === null || roomPassword === null || userAccessToken === null){
+        data['error'] = 'You did not complete all of the form fields';
+        // console.log(data);
+
+        // res.setHeader('Content-Type', 'application/json');
+        res.send(data);
+    }else{
+
+        var user = users.getUserByAccessToken(userAccessToken);
+        // console.log(user);
+
+        var room = roomList.create(roomName, roomPassword, user);
+
+        if(room === null){
+            data['error'] = "Could not create room";
+            // res.setHeader('Content-Type', 'application/json');
+            // console.log(data);
+            res.send(data);
+        }else{
+            // console.log(room);
+            data['success'] = "Room created successfully";
+
+            req.session.roomId = room.roomId;
+            
+            // res.setHeader('Content-Type', 'application/json');
+            res.send(data);
+        }
+    }
+
+  
+});
+
+app.get('/joinRoom', function(req, res){
+
+    let roomName = req.query.roomName || null;
+    let roomPassword = req.query.roomPassword || null;
+    let userAccessToken =  req.query.userAccessToken;//=  //req.query.user secret or something
+    
+    var data = {};
+    if( roomName === null || roomPassword === null || userAccessToken === null){
+        data['error'] = 'You did not complete all of the form fields';
+        console.log(data);
+
+        // res.setHeader('Content-Type', 'application/json');
+        res.send(data);
+    }else{
+        var user = users.getUserByAccessToken(userAccessToken);
+        console.log(user);
+
+        var room = roomList.join(roomName, roomPassword, user);
+
+        if(room === null){
+            data['error'] = "Could not join room";
+            // res.setHeader('Content-Type', 'application/json');
+            console.log(data);
+            res.send(data);
+        }else{
+            console.log(room);
+            data['success'] = "Room joined successfully";
+            
+            req.session.roomId = room.roomId;
+            
+            // res.setHeader('Content-Type', 'application/json');
+            res.send(data);
+        }
     }
 });
 

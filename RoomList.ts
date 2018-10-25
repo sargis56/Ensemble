@@ -1,23 +1,96 @@
-class RoomList{
-    
-    // Rooms: Room[];
+import Room from './Room';
+import User from './User';
 
-    // constructor(){
+export default class RoomList {
 
-    // }
+    Rooms: Room[];
 
-    // public createRoom(roomName: string, roomPass: string){
-    //     var newRoom: Room = new RoomList(roomName, roomPass);
-    //     this.Rooms.push(newRoom);
-    // }
+    constructor() {
+        this.Rooms = [];
+    }
 
-    // public getRooms: Room[](){
+    create(roomName: string, roomPass: string, creator: User) {
+        if(this.getRoomByName(roomName) === null){
+            var newRoom: Room = new Room(roomName, roomPass, creator);
+            this.Rooms.push(newRoom);
+            return newRoom;
+        }else{
+            //room with that name already exists
+            return null;
+        }
+
+    }
+
+    join(roomName: string, roomPass: string, user: User) {
+        var room = this.getRoomByName(roomName);
+        if(room === null){
+            return null;
+        }else{
+            if(room.roomPassword === roomPass){
+                if(room.blockedUsers.indexOf(user.username) < 0){
+                    //blocked
+                    return null;
+                }else if(room.admin.username === user.username){
+                    return null;
+                }else{
+                    room.userJoin(user);
+                    return room;
+                }
+            }else{
+                return null;
+            }
+        }
+    }
+
+    getRoomByName(name: string){
+        var found: boolean = false;
+        for(var i: number = 0; i < this.Rooms.length; i++ ){
+            if(this.Rooms[i].roomName === name){
+                found = true;
+                return this.Rooms[i];
+            }
+        }
+        return null;
+    }
+
+    getRoomById(id: string){
+        for(var i: number = 0; i < this.Rooms.length; i++ ){
+            if(this.Rooms[i].roomId === id){
+                return this.Rooms[i];
+            }
+        }
+        return null;
+    }
+
+    getContributorsRoom(user: User){
+        //check for contributor
+        for(var i: number = 0; i < this.Rooms.length; i++ ){
+            var roomContributors = this.Rooms[i].conotributors;
+            for(var j : number = 0; j < roomContributors.length; j++){
+                if(this.Rooms[i].conotributors[j].username === user.username){
+                    return this.Rooms[i];
+                }
+            }
+            
+        }
         
-    //     return Rooms;
-    // }
+        return null;
+        
+    }
 
-    // public getRoomByName: Room(){
-    //     return Rooms[0];
-    // }
+    getAdminsRoom(user: User){
+        //first check for admin
+        for(var i: number = 0; i < this.Rooms.length; i++ ){
+            if(this.Rooms[i].admin.username === user.username){
+                return this.Rooms[i];
+            }
+        }
+
+        return null;
+        
+    }
+
+    test(){
+        console.log("room list test");
+    }
 }
-export = RoomList;

@@ -1,9 +1,33 @@
 <div>
-<input type="text" class="form-control" /><br>
-<input type="password" class="form-control" />
-<button class="btn btn-primary">Join</button>
+<input type="text"  id="txt-join-room-name"class="form-control" /><br>
+<input type="password" id="txt-join-room-password" class="form-control" />
+<button class="btn btn-primary" id="btn-join-room">Join</button>
 </div>
 
 <script>
-    
+    $("#btn-join-room").bind('click', function(){
+        var roomName = $('#txt-join-room-name').val();
+        var roomPassword = $('#txt-join-room-password').val();
+        $.ajax({
+            url: '/joinRoom',
+            dataType: 'json',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            data: {
+                'roomName': roomName,
+                'roomPassword': roomPassword,
+                'userAccessToken': `{{access_token}}`
+            }
+        }).done(function(data) {
+            console.log(data);
+            
+            if(data.error){
+                //display error
+            }else{
+                //join new room
+                window.location = "/room";
+            }
+        });
+    });
 </script>
