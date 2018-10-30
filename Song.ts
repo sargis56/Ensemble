@@ -1,5 +1,5 @@
-class Song{
-    
+ 
+export default class Song {
+
 }
 
-export = Song;

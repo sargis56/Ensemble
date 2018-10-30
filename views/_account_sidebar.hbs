@@ -1,5 +1,25 @@
-<span>User Name: </span> <span>{{username}}</span>
+<i class="fas fa-user-circle"></i><br>
+<span id="user-me-id"></span><br>
+<span id="user-me-email"></span><br>
+<button class="btn btn-link">Log Out</button>
 
 <script>
+    
+    console.log(access_token);
+
+    $( document ).ready( function(){
+       $.ajax({
+        url: 'https://api.spotify.com/v1/me',
+        headers: {
+            'Authorization': 'Bearer ' + access_token,
+            'Content-Type': 'application/json'
+        }
+        }).done(function (data) {
+            console.log(data);
+            $('#user-me-id').text(data.display_name);
+            $('#user-me-email').text(data.email);
+
+        });
+    });
     
 </script>
