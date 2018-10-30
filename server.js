@@ -372,6 +372,7 @@ app.get('/joinRoom', function(req, res){
 
         if(room === null){
             data['error'] = "Could not join room";
+            data['message'] = roomList.getRoomByName(roomName);
             // res.setHeader('Content-Type', 'application/json');
             console.log(data);
             res.send(data);
