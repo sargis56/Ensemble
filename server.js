@@ -186,6 +186,8 @@ app.get('/login', function (req, res) {
 });
 
 
+
+//Routing
 app.get('/', function (req, res) {
 
     if(req.session.refresh_token){
@@ -257,6 +259,8 @@ app.get('/', function (req, res) {
 
 });
 
+
+//Room page
 app.get('/room', function (req, res){
 
     //check that we are logged in.
@@ -305,6 +309,9 @@ app.get('/room', function (req, res){
 });
 
 
+//Server - Client Asynchronous Communication End Points
+
+//create room
 app.get('/createRoom', function(req, res){
     let roomName = req.query.roomName || null;
     let roomPassword = req.query.roomPassword || null;
@@ -343,6 +350,7 @@ app.get('/createRoom', function(req, res){
   
 });
 
+//Join room
 app.get('/joinRoom', function(req, res){
 
     let roomName = req.query.roomName || null;
@@ -378,6 +386,15 @@ app.get('/joinRoom', function(req, res){
         }
     }
 });
+
+//leave room
+
+//add song to room
+
+//get room songs
+
+//get room now playing
+
 
 console.log('Listening on 8080');
 app.listen(process.env.PORT || 8080);
