@@ -389,6 +389,9 @@ app.get('/joinRoom', function(req, res){
 });
 
 //leave room
+app.get('/leaveRoom', function(req, res){
+
+});
 
 //add song to room
 
