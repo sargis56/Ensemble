@@ -50,5 +50,13 @@ export default class UserList {
     getUserCount(){
         return this.Users.length;
     }
+
+    getUserList(){
+        var value = [];
+        for(var i : number = 0; i < this.Users.length; i++){
+            value.push(this.Users[i].username);
+        }
+        return value;
+    }
 }
 
