@@ -27,15 +27,10 @@ export default class RoomList {
             return null;
         }else{
             if(room.roomPassword === roomPass){
-                if(room.blockedUsers.indexOf(user.username) < 0){
-                    //blocked
-                    return null;
-                }else if(room.admin.username === user.username){
-                    return null;
-                }else{
-                    room.userJoin(user);
-                    return room;
-                }
+                
+                room.userJoin(user);
+                return room;
+                
             }else{
                 return null;
             }
