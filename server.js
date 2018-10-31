@@ -108,9 +108,6 @@ var generateRandomString = function (length) {
 app.get('/jquery-3.3.1.min.js', function (req, res) {
     res.sendFile(__dirname + '/jquery-3.3.1.min.js');
 });
-app.get('/styles.css', function (req, res) {
-    res.sendFile(__dirname + '/styles.css');
-});
 
 /**
  * The callback url for spotify after login.
@@ -389,12 +386,6 @@ app.get('/joinRoom', function(req, res){
             res.send(data);
         }
     }
-});
-
-//url: '/getUserList'
-app.get('/getUserList', function(req, res){
-    var user = users.getUserList();
-    res.send(user);
 });
 
 //leave room

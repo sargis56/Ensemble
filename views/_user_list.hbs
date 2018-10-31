@@ -2,20 +2,7 @@
 <div id="user-list"></div>
 
 <script>
-    $(document).ready( function(){
-       $.ajax({
-        url: '/getUserList',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-        }).done(function (data) {
-            $.each(data, function (index, user) {
-                var userHTML = ` <span>`+ user +`</span> `;
-
-                    $('#user-list').append(userHTML);
-
-
-            });
-        });
+    $( document ).ready( function(){
+       
     });
 </script>

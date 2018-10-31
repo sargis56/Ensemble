@@ -48,13 +48,6 @@ var UserList = /** @class */ (function () {
     UserList.prototype.getUserCount = function () {
         return this.Users.length;
     };
-    UserList.prototype.getUserList = function () {
-        var value = [];
-        for (var i = 0; i < this.Users.length; i++) {
-            value.push(this.Users[i].username);
-        }
-        return value;
-    };
     return UserList;
 }());
 exports.default = UserList;
