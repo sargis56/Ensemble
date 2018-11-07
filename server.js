@@ -13,7 +13,7 @@ var request = require('request');
  * https://github.com/request/request
 */
 
-var websocket = require('ws');
+var WebSocket = require('ws');
 /**
  * Websocket Server module.
  * Create socket connections and send socket messages.
@@ -84,6 +84,11 @@ var userSercretKey = 'user_secret_key'
 //End of variables
 
 
+ 
+
+
+
+
 //Server Setup
 var app = express();
 
@@ -104,6 +109,70 @@ var generateRandomString = function (length) {
     }
     return text;
 };
+
+const wss = new WebSocket.Server({ port: 8181 });
+
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+
+        var SocketData = JSON.parse(message);
+        var event = SocketData.event;
+        var data = SocketData.data;
+
+        switch(event){
+            case "room-connect":
+                console.log("socket data",data);
+                console.log("socket username",data.username);
+                var user = users.getUserByUsername(data.username);
+                user.setWebSocket(ws);
+                var user = users.getUserByUsername(data.username);
+                console.log("user", user);
+
+                var room = roomList.getRoomById(data.roomId);
+                console.log(room);
+                //if user not in room
+                if( room.containsUser(user.username)){
+                    room.userJoin(user);
+                }
+
+                var room = roomList.getRoomById(data.roomId);
+                console.log(room);
+
+                var roomUsers = room.conotributors;
+                // console.log("room users" , roomUsers);
+                var usersArray = room.getUsersUsernames();
+                
+                for(var i = 0; i < roomUsers.length; i++){
+                    if(roomUsers[i].ws != null){
+                        var newMessage = {'event' : 'room-usersUpdated' , 'data':{ 'users': usersArray}} ;
+                        console.log(newMessage);
+                        roomUsers[i].ws.send(newMessage); 
+                        
+                    }
+                }
+
+                //foreach room user send new room users list
+                break;
+            case "room-disconnect":
+                users.setUserWebSocket(username, null);
+                //remove user from room
+
+                //foreach room user send new room users list
+
+                break;
+            case "room-":
+
+                break;
+        }
+
+        // ws.send(message);
+    });
+});
+
+//client side websocket plugin
+app.get('/ws_events_dispatcher.js', function (req, res){
+    res.sendfile(__dirname + '/ws_events_dispatcher.js');
+});
 
 app.get('/jquery-3.3.1.min.js', function (req, res) {
     res.sendFile(__dirname + '/jquery-3.3.1.min.js');
@@ -270,38 +339,38 @@ app.get('/room', function (req, res){
     if(req.session.access_token){
         //logged in
         var user = users.getUserByAccessToken(req.session.access_token);
-
-        //check if user is admin of any rooms
-        var room = roomList.getAdminsRoom(user);
-        var isAdmin = false;
-
-        if(room === null){
-            isAdmin = false;
-            room = roomList.getContributorsRoom(user);
-            if(room === null){
-                //user is not in any room
-                console.log("user is not in any room");
-                res.redirect('/');
-            }
+        if(req.session.roomId === null){
+            //not logged in. not supposed to be here
+            console.log("user is not in any rooms");
+            res.redirect('/');
         }else{
-            isAdmin = true;
-        }
-        if(room === null){
+            console.log("session roo  id", req.session.roomId);
+            //check that room is not null;
+            var room = roomList.getRoomById(req.session.roomId);
+            if(room != null){
+                var isAdmin = false;
+                if(room.admin.username == user.username){
+                    isAdmin = true;
+                }
+                
+                var data = [];
+                data['access_token'] = req.session.access_token;
+                data['username'] = user.username;
+                data['refresh_token'] = req.session.refresh_token;
+                data['roomId'] = req.session.roomId;
+                data['isAdmin'] = isAdmin;
+                data['layout'] = false;
+                if(isAdmin){
+                    res.render('room_admin', data);
+                }else{
+                    res.render('room', data);
+                }
 
-        }else{
-            var data = [];
-            data['access_token'] = req.session.access_token;
-            data['refresh_token'] = req.session.refresh_token;
-            data['roomId'] = req.session.roomId;
-            data['isAdmin'] = isAdmin;
-            data['layout'] = false;
-            if(isAdmin){
-                res.render('room_admin', data);
             }else{
-                res.render('room', data);
+                console.log("Room no longer exists");
+                res.redirect('/');   
             }
         }
-
     }else{
         //not logged in. not supposed to be here
         console.log("user is not logged in");
@@ -318,39 +387,27 @@ app.get('/room', function (req, res){
 app.get('/createRoom', function(req, res){
     let roomName = req.query.roomName || null;
     let roomPassword = req.query.roomPassword || null;
-    let userAccessToken =  req.query.userAccessToken;//=  //req.query.user secret or something
+    let userAccessToken =  req.query.userAccessToken;
     
     var data = {};
     if( roomName === null || roomPassword === null || userAccessToken === null){
         data['error'] = 'You did not complete all of the form fields';
-        // console.log(data);
-
-        // res.setHeader('Content-Type', 'application/json');
         res.send(data);
     }else{
-
         var user = users.getUserByAccessToken(userAccessToken);
-        // console.log(user);
-
-        var room = roomList.create(roomName, roomPassword, user);
-
-        if(room === null){
-            data['error'] = "Could not create room";
-            // res.setHeader('Content-Type', 'application/json');
-            // console.log(data);
+        var adminRoom = roomList.getAdminsRoom(user)
+        if(adminRoom != null){
+            //user is already admin of a room
+            data['error'] = 'You are already an admin of a room';
             res.send(data);
         }else{
-            // console.log(room);
-            data['success'] = "Room created successfully";
-
-            req.session.roomId = room.roomId;
-            
-            // res.setHeader('Content-Type', 'application/json');
+            var newRoom = roomList.create(roomName, roomPassword, user);
+            console.log(newRoom);
+            data['success'] = "Room created";
+            req.session.roomId = newRoom.roomId;
             res.send(data);
         }
     }
-
-  
 });
 
 //Join room
@@ -363,30 +420,26 @@ app.get('/joinRoom', function(req, res){
     var data = {};
     if( roomName === null || roomPassword === null || userAccessToken === null){
         data['error'] = 'You did not complete all of the form fields';
-        console.log(data);
-
-        // res.setHeader('Content-Type', 'application/json');
         res.send(data);
     }else{
-        var user = users.getUserByAccessToken(userAccessToken);
-        console.log(user);
 
-        var room = roomList.join(roomName, roomPassword, user);
-
-        if(room === null){
-            data['error'] = "Could not join room";
-            data['message'] = roomList.getRoomByName(roomName);
-            // res.setHeader('Content-Type', 'application/json');
-            console.log(data);
+        if(req.session.roomId != null){
+            //they are already in a room
+            data['error'] = "You are already in a room.";
             res.send(data);
         }else{
-            console.log(room);
-            data['success'] = "Room joined successfully";
-            
-            req.session.roomId = room.roomId;
-            
-            // res.setHeader('Content-Type', 'application/json');
-            res.send(data);
+        
+            var joinedRoom = roomList.getRoomByName(roomName);
+            if(joinedRoom != null){
+                //room exists
+                req.session.roomId = joinedRoom.roomId;
+                data['success'] = "Room joined successfully";
+                res.send(data);
+            }else{
+                //room doesnt exist
+                data['error'] = "Room doesnt exist";
+                res.send(data);
+            }
         }
     }
 });
@@ -394,6 +447,7 @@ app.get('/joinRoom', function(req, res){
 //url: '/getUserList'
 app.get('/getUserList', function(req, res){
     var user = users.getUserList();
+    var roomid = req.query.room;
     res.send(user);
 });
 
@@ -405,6 +459,7 @@ app.get('/leaveRoom', function(req, res){
 //add song to room
 
 //get room songs
+
 
 //get room now playing
 

@@ -36,6 +36,13 @@ export default class UserList {
         return null;
     }
 
+    setUserWebSocket( username: string, websocket: WebSocket){
+        var user = this.getUserByUsername(username);
+        if(user != null){
+            user.setWebSocket(websocket);
+        }
+    }
+
     getUserByAccessToken(key: string){
         var found: boolean = false;
         for(var i : number = 0; i < this.Users.length; i++){

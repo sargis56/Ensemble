@@ -43,5 +43,22 @@ export default class Room {
         return text;
     };
 
+    containsUser(username: string){
+        for(var i = 0; i < this.conotributors.length; i ++){
+            if(this.conotributors[i].username == username){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getUsersUsernames(){
+        var usernames = [];
+        for(var i = 0; i < this.conotributors.length; i ++){
+            usernames.push(this.conotributors[i].username);
+        }
+        return usernames;
+    }
+
 }
 

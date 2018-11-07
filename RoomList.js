@@ -47,9 +47,11 @@ var RoomList = /** @class */ (function () {
     RoomList.prototype.getRoomById = function (id) {
         for (var i = 0; i < this.Rooms.length; i++) {
             if (this.Rooms[i].roomId === id) {
+                console.log("room found");
                 return this.Rooms[i];
             }
         }
+        console.log("room not found");
         return null;
     };
     RoomList.prototype.getContributorsRoom = function (user) {

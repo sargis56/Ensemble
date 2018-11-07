@@ -28,6 +28,21 @@ var Room = /** @class */ (function () {
         return text;
     };
     ;
+    Room.prototype.containsUser = function (username) {
+        for (var i = 0; i < this.conotributors.length; i++) {
+            if (this.conotributors[i].username == username) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Room.prototype.getUsersUsernames = function () {
+        var usernames = [];
+        for (var i = 0; i < this.conotributors.length; i++) {
+            usernames.push(this.conotributors[i].username);
+        }
+        return usernames;
+    };
     return Room;
 }());
 exports.default = Room;

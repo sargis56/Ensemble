@@ -35,6 +35,12 @@ var UserList = /** @class */ (function () {
         }
         return null;
     };
+    UserList.prototype.setUserWebSocket = function (username, websocket) {
+        var user = this.getUserByUsername(username);
+        if (user != null) {
+            user.setWebSocket(websocket);
+        }
+    };
     UserList.prototype.getUserByAccessToken = function (key) {
         var found = false;
         for (var i = 0; i < this.Users.length; i++) {

@@ -51,9 +51,11 @@ export default class RoomList {
     getRoomById(id: string){
         for(var i: number = 0; i < this.Rooms.length; i++ ){
             if(this.Rooms[i].roomId === id){
+                console.log("room found");
                 return this.Rooms[i];
             }
         }
+        console.log("room not found");
         return null;
     }
 
