@@ -1,12 +1,12 @@
 //import modules
 
-var express = require('express'); 
+var express = require('express');
 /**
  * Express web server framework
  * https://expressjs.com/en/api.html
 */
 
-var request = require('request'); 
+var request = require('request');
 /** 
  * Library to easily make https requests. 
  * Really simplifies communication from our node server to spotify.
@@ -19,6 +19,9 @@ var WebSocket = require('ws');
  * Create socket connections and send socket messages.
  * https://github.com/websockets/ws
 */
+
+var mysql = require('mysql');
+
 
 var querystring = require('querystring');
 /**
@@ -55,11 +58,9 @@ var session = require('express-session');
 
 //Import Custom Javascript Classes
 
-var User = require('./User');
-var Room = require('./Room');
-var Song = require('./Song');
-var RoomList = require('./RoomList').default;
-var UserList = require('./UserList').default;
+var Rooms = require('./Rooms').default;
+var Song = require('./Room').default;
+
 
 
 //End of Javascript Class Import;
@@ -68,14 +69,13 @@ var UserList = require('./UserList').default;
 //Create Variables
 
 //use these instead of database
-var roomList = new RoomList();
-var users = new UserList();
+var rooms = new Rooms();
 
 /**
  * Variables used for spotify app integration. These are found in the spotify app dashboard. 
  * Redirect urls must be whitelisted in the spotify dashboard first.
 */
-var client_id = '2b7eab7f84fb470486ef8aafbe0715c4'; 
+var client_id = '2b7eab7f84fb470486ef8aafbe0715c4';
 var client_secret = '52c420a710134fa5b102d6d5c3e6ad3e';
 var redirect_uri = 'http://localhost:8080/callback';
 var stateKey = 'spotify_auth_state';
@@ -84,7 +84,7 @@ var userSercretKey = 'user_secret_key'
 //End of variables
 
 
- 
+
 
 
 
@@ -92,7 +92,7 @@ var userSercretKey = 'user_secret_key'
 //Server Setup
 var app = express();
 
-app.engine('hbs', exbars({defaultLayout: 'main'}));
+app.engine('hbs', exbars({ defaultLayout: 'main' }));
 app.set('view engine', 'hbs');
 app.use(
     express.static(__dirname + '/public')).use(cookieParser()).use(session({
@@ -112,53 +112,25 @@ var generateRandomString = function (length) {
 
 const wss = new WebSocket.Server({ port: 8181 });
 
+
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
+        console.log(message);
 
         var SocketData = JSON.parse(message);
         var event = SocketData.event;
         var data = SocketData.data;
 
-        switch(event){
+        switch (event) {
             case "room-connect":
-                console.log("socket data",data);
-                console.log("socket username",data.username);
-                var user = users.getUserByUsername(data.username);
-                user.setWebSocket(ws);
-                var user = users.getUserByUsername(data.username);
-                console.log("user", user);
-
-                var room = roomList.getRoomById(data.roomId);
-                console.log(room);
-                //if user not in room
-                if( room.containsUser(user.username)){
-                    room.userJoin(user);
-                }
-
-                var room = roomList.getRoomById(data.roomId);
-                console.log(room);
-
-                var roomUsers = room.conotributors;
-                // console.log("room users" , roomUsers);
-                var usersArray = room.getUsersUsernames();
-                
-                for(var i = 0; i < roomUsers.length; i++){
-                    if(roomUsers[i].ws != null){
-                        var newMessage = {'event' : 'room-usersUpdated' , 'data':{ 'users': usersArray}} ;
-                        console.log(newMessage);
-                        roomUsers[i].ws.send(newMessage); 
-                        
-                    }
-                }
-
-                //foreach room user send new room users list
+                var user_id = data.username;
+                var room_id = data.room_id;
+                rooms.addClient(room_id, user_id, ws);
                 break;
             case "room-disconnect":
-                users.setUserWebSocket(username, null);
-                //remove user from room
-
-                //foreach room user send new room users list
-
+                var user_id = data.username;
+                var room_id = data.room_id;
+                rooms.removeClient(room_id, user_id);
                 break;
             case "room-":
 
@@ -170,7 +142,7 @@ wss.on('connection', function connection(ws) {
 });
 
 //client side websocket plugin
-app.get('/ws_events_dispatcher.js', function (req, res){
+app.get('/ws_events_dispatcher.js', function (req, res) {
     res.sendfile(__dirname + '/ws_events_dispatcher.js');
 });
 
@@ -189,9 +161,9 @@ app.get('/callback', function (req, res) {
     var code = req.query.code || null;
     var state = req.query.state || null;
 
-    if(code === null){
+    if (code === null) {
 
-    }else{
+    } else {
         console.log(req.headers.host);
         var redirect = "http://" + req.headers.host + "/callback";
 
@@ -215,20 +187,19 @@ app.get('/callback', function (req, res) {
 
                 //store tokens in session
                 req.session.access_token = body.access_token;
-                console.log("Scopes ",body.scope);
-                console.log("Token type ",body.token_type);
+
+                console.log("Scopes ", body.scope);
+                console.log("Token type ", body.token_type);
                 req.session.refresh_token = body.refresh_token;
 
-            }else{
+            } else {
 
-                // console.log(error);
-                // console.log(body);
             }
 
             res.redirect('/');
 
         });
-        
+
     }
 
 });
@@ -236,7 +207,7 @@ app.get('/callback', function (req, res) {
 
 /*When the user's browser is directed to /login the webserver redirects them 
 to the spotify login page, passing in our app credentials and a redirect url
-for it to redirect the users back to*/ 
+for it to redirect the users back to*/
 app.get('/login', function (req, res) {
 
     var scope = "streaming user-modify-playback-state user-read-playback-state user-read-recently-played user-read-birthdate user-read-private user-read-email";//["streaming", "user-read-birthdate", "user-read-email", "user-read-private"]
@@ -253,7 +224,7 @@ app.get('/login', function (req, res) {
             scope: scope,
             redirect_uri: redirect
         }));
-        //, state: state
+    //, state: state
 
 });
 
@@ -262,197 +233,214 @@ app.get('/login', function (req, res) {
 //Routing
 app.get('/', function (req, res) {
 
-    if(req.session.refresh_token){
-        console.log('user access code is saved in sesssion');
+    if (req.session.access_token) {
+        // console.log('user access code is saved in sesssion', req.session.access_token);
         // console.log(req.session.refresh_token);
 
         let refresh_token = req.session.refresh_token;
         let access_token = req.session.access_token;
-        let user_id = "";
+        let user_id = req.session.user_id;
         var code = req.session.userAccessCode;
 
-        //check if user with that access tokenalready exists
-        var user = users.getUserByAccessToken(access_token);
-        if(user === null){
-            //new user create them and log in
 
-            //get spotify user details
-            var options = {
-                url: 'https://api.spotify.com/v1/me',
-                headers: { 'Authorization': 'Bearer ' + access_token },
-                json: true
-            };
+        //new user create them and log in
 
-            request.get(options, function (error, response, body) {
+        //get spotify user details
+        var options = {
+            url: 'https://api.spotify.com/v1/me',
+            headers: { 'Authorization': 'Bearer ' + access_token },
+            json: true
+        };
 
-                if(body.id === null){
-                    //error getting user details
-                    var data = [];
-                    data['error'] = "There was an error getting your user details from spotify";
-                    data['layout'] = false;
-                    res.render('loggedout', data);
-                }
-                else{
-                    user_id = body.id;
+        request.get(options, function (error, response, body) {
 
-                    //create user
-                    user = users.NewUser( user_id , access_token );
-                    console.log("new user recorded/updated");
-                    // console.log(user);
+            if (body.id === null) {
+                //error getting user details
+                var data = [];
+                data['error'] = "There was an error getting your user details from spotify";
+                data['layout'] = false;
+                res.render('loggedout', data);
+            }
+            else {
+                user_id = body.id;
+                insertUser(user_id, access_token);
+                req.session.user_id = user_id;
 
-                    var data = [];
-                    data['access_token'] = access_token; 
-        
-                    data['title'] = "Logged In"; 
-                    data['layout'] = false; 
-                    res.render('loggedin', data);
+                var data = [];
+                data['access_token'] = access_token;
 
-                }
-            });
+                data['title'] = "Logged In";
+                data['layout'] = false;
+                res.render('loggedin', data);
 
-
-        }else{
-            //returning user
-            console.log("user has returned");
-
-            //load page
-            var data = [];
-            data['access_token'] = access_token; 
-
-            data['title'] = "Logged In"; 
-            data['layout'] = false; 
-            res.render('loggedin', data);
-        }
-        
-    }else{
+            }
+        });
+    } else {
         console.log('user access code is not saved in session. user needs to login');
-        res.render('loggedout', {title : "Please Log In", message : "you are logged out", layout: false });
+        res.render('loggedout', { title: "Please Log In", message: "you are logged out", layout: false });
     }
 
 });
 
 
 //Room page
-app.get('/room', function (req, res){
+app.get('/room', function (req, res) {
 
-    //check that we are logged in.
-    if(req.session.access_token){
-        //logged in
-        var user = users.getUserByAccessToken(req.session.access_token);
-        if(req.session.roomId === null){
-            //not logged in. not supposed to be here
-            console.log("user is not in any rooms");
-            res.redirect('/');
-        }else{
-            console.log("session roo  id", req.session.roomId);
-            //check that room is not null;
-            var room = roomList.getRoomById(req.session.roomId);
-            if(room != null){
-                var isAdmin = false;
-                if(room.admin.username == user.username){
-                    isAdmin = true;
-                }
-                
-                var data = [];
-                data['access_token'] = req.session.access_token;
-                data['username'] = user.username;
-                data['refresh_token'] = req.session.refresh_token;
-                data['roomId'] = req.session.roomId;
-                data['isAdmin'] = isAdmin;
-                data['layout'] = false;
-                if(isAdmin){
-                    res.render('room_admin', data);
-                }else{
-                    res.render('room', data);
-                }
+    //check that we are logged in. and have a room id storred
+    if (req.session.access_token != null && req.session.room_id != null) {
+        //check database for room;
+        var room = getRoomExists(req.session.room_id);
 
-            }else{
-                console.log("Room no longer exists");
-                res.redirect('/');   
+        if (room !== false) {
+
+            //check if user is admin
+            var roomAdminId = getRoomAdminId(req.session.room_id);
+            var isAdmin = false;
+            if (roomAdminId == req.session.user_id) {
+                isAdmin = true;
             }
+
+            var data = [];
+            data['access_token'] = req.session.access_token;
+            data['refresh_token'] = req.session.refresh_token;
+            data['user_id'] = req.session.user_id;
+            data['room_id'] = req.session.room_id;
+            console.log("room id for data send", req.session.room_id);
+            data['isAdmin'] = isAdmin;
+            data['layout'] = false;
+            if (isAdmin) {
+                res.render('room_admin', data);
+            } else {
+                res.render('room', data);
+            }
+
+        } else {
+            console.log("Room no longer exists");
+            req.session.room_id = null;
+            res.redirect('/');
         }
-    }else{
+
+
+    } else {
         //not logged in. not supposed to be here
-        console.log("user is not logged in");
+        console.log("user is not in any rooms");
+        console.log("access_token", req.session.access_token);
+        console.log("room_id", req.session.room_id);
         res.redirect('/');
+        console.log("session room  id", req.session.room_id);
     }
 
-    
 });
 
 
 //Server - Client Asynchronous Communication End Points
 
 //create room
-app.get('/createRoom', function(req, res){
-    let roomName = req.query.roomName || null;
-    let roomPassword = req.query.roomPassword || null;
-    let userAccessToken =  req.query.userAccessToken;
-    
+app.get('/createRoom', function (req, res) {
+    var room_name = req.query.roomName || null;
+    var room_password = req.query.roomPassword || null;
+    var userAccessToken = req.query.userAccessToken;
+    var user_id = req.session.user_id;
+
     var data = {};
-    if( roomName === null || roomPassword === null || userAccessToken === null){
+    if (room_name === null || room_password === null || userAccessToken === null) {
         data['error'] = 'You did not complete all of the form fields';
         res.send(data);
-    }else{
-        var user = users.getUserByAccessToken(userAccessToken);
-        var adminRoom = roomList.getAdminsRoom(user)
-        if(adminRoom != null){
-            //user is already admin of a room
-            data['error'] = 'You are already an admin of a room';
+    } else {
+
+        var connection;
+        var result ="not set";
+        mysql.createConnection(connectionCredentials).then(function (conn) {
+            connection = conn;
+            return connection.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
+        }).then(function (rows) {
+            var count = rows[0].count;
+            console.log("room count for that name", count)
+            if (count > 0) {
+
+            } else {
+
+                connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
+
+            }
+            return count;
+        }).then(function (count) {
+            if (count > 0) {
+                connection.end();
+                result = false;
+                return false;
+            } else {
+                result = true;
+                return connection.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
+            }
+        }).then(function (rows) {
+            if (rows != false) {
+                console.log("select from rooms for room id", result);
+                result = rows[0].id;
+                connection.end();
+            }else{
+                result = null;
+            }
+            return result;
+
+        }).then(function(room_id){
+            if (room_id == false) {
+                data['error'] = "Room exists";
+                console.log("room not created in database");
+    
+            } else {
+                data['success'] = "Room created";
+                console.log("room created in database");
+                
+                req.session.room_id = room_id;
+            }
             res.send(data);
-        }else{
-            var newRoom = roomList.create(roomName, roomPassword, user);
-            console.log(newRoom);
-            data['success'] = "Room created";
-            req.session.roomId = newRoom.roomId;
-            res.send(data);
-        }
+        });
     }
 });
 
 //Join room
-app.get('/joinRoom', function(req, res){
+app.get('/joinRoom', function (req, res) {
 
-    let roomName = req.query.roomName || null;
-    let roomPassword = req.query.roomPassword || null;
-    let userAccessToken =  req.query.userAccessToken;//=  //req.query.user secret or something
-    
+    let room_name = req.query.roomName || null;
+    let room_password = req.query.roomPassword || null;
+    let userAccessToken = req.query.userAccessToken;//=  //req.query.user secret or something
+
     var data = {};
-    if( roomName === null || roomPassword === null || userAccessToken === null){
+    if (room_name === null || room_password === null || userAccessToken === null) {
         data['error'] = 'You did not complete all of the form fields';
         res.send(data);
-    }else{
+    } else {
 
-        if(req.session.roomId != null){
-            //they are already in a room
-            data['error'] = "You are already in a room.";
-            res.send(data);
-        }else{
-        
-            var joinedRoom = roomList.getRoomByName(roomName);
-            if(joinedRoom != null){
-                //room exists
-                req.session.roomId = joinedRoom.roomId;
-                data['success'] = "Room joined successfully";
-                res.send(data);
-            }else{
-                //room doesnt exist
-                data['error'] = "Room doesnt exist";
-                res.send(data);
+        var connection;
+        var result ="not set";
+        mysql.createConnection(connectionCredentials).then(function (conn) {
+            connection = conn;
+            return connection.query("Select room_id, room_name, room_password, room_admin_user_id from rooms where room_name = '" + room_name + "' and room_password = '" + room_password + "' ");
+        }).then(function (rows) {
+            var count = rows[0].count;
+            console.log("room count for that name", count)
+            if (count > 0) {
+
+            } else {
+
+                connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
+
             }
-        }
+            return count;
+        })
     }
 });
 
 //url: '/getUserList'
-app.get('/getUserList', function(req, res){
+app.get('/getUserList', function (req, res) {
     var user = users.getUserList();
     var roomid = req.query.room;
     res.send(user);
 });
 
 //leave room
-app.get('/leaveRoom', function(req, res){
+app.get('/leaveRoom', function (req, res) {
 
 });
 
@@ -466,3 +454,167 @@ app.get('/leaveRoom', function(req, res){
 
 console.log('Listening on 8080');
 app.listen(process.env.PORT || 8080);
+
+
+
+function getUsers() {
+    var connection = mysql.createConnection({
+        host: 'us-cdbr-iron-east-01.cleardb.net',
+        user: 'ba4392ebdbcb5e',
+        password: 'a3629f9c',
+        database: 'heroku_a06745153006398'
+    });
+
+    connection.connect();
+
+    connection.query('SELECT * from users', function (err, rows, fields) {
+        if (err) {
+            console.log('error: ', err);
+            throw err;
+        }
+        console.log('Hello World!!!! HOLA MUNDO!!!!', rows);
+    });
+    connection.end();
+
+}
+/*
+function getUser(user_id) {
+    var connection = mysql.createConnection({
+        host: 'us-cdbr-iron-east-01.cleardb.net',
+        user: 'ba4392ebdbcb5e',
+        password: 'a3629f9c',
+        database: 'heroku_a06745153006398'
+    });
+
+    connection.connect();
+    var foundUserId;
+    connection.query("SELECT * from users where user_id = '" + user_id + "' ", function (err, rows, fields) {
+        if (err) {
+            console.log('error: ', err);
+            throw err;
+        }
+        console.log('user 0', rows);
+        foundUserId = user_id;
+        selectUser(connection, foundUserId);
+    });
+    // console.log("found user id between two querys" , foundUserId);
+    
+    
+}
+*/
+
+var mysql = require('promise-mysql');
+
+var connectionCredentials = {
+    host: 'us-cdbr-iron-east-01.cleardb.net',
+    user: 'ba4392ebdbcb5e',
+    password: 'a3629f9c',
+    database: 'heroku_a06745153006398'
+};
+
+
+
+function insertUser(user_id, access_token) {
+
+    var connection;
+    mysql.createConnection(connectionCredentials).then(function (conn) {
+        connection = conn;
+        return connection.query("Select count(user_id) as count from users where user_id = '" + user_id + "' ");
+    }).then(function (rows) {
+        var count = rows[0].count;
+
+        if (count > 0) {
+            //update access code
+            connection.query("Update users set access_token ='" + access_token + "' where user_id = '" + user_id + "' ");
+            connection.end();
+
+        } else {
+            //insert new user
+            connection.query("insert into users (user_id, access_token) values( '" + user_id + "' , '" + access_token + "' )");
+            connection.end();
+
+        }
+        return count;
+    }).then(function (rows) {
+        // Logs out a ring that Frodo owns
+        console.log("user count was", rows);
+    });
+}
+
+
+
+
+//rooms
+
+function insertRoom(room_name, room_password, user_id) {
+
+    var connection;
+    var result ="not set";
+    mysql.createConnection(connectionCredentials).then(function (conn) {
+        connection = conn;
+        return connection.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
+    }).then(function (rows) {
+        var count = rows[0].count;
+        console.log("room count for that name", count)
+        if (count > 0) {
+
+        } else {
+
+            connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
+
+        }
+        return count;
+    }).then(function (count) {
+        if (count > 0) {
+            connection.end();
+            result = false;
+            return false;
+        } else {
+            result = true;
+            return connection.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
+        }
+    }).then(function (rows) {
+        if (rows != false) {
+            console.log("select from rooms for room id", result);
+            result = rows[0].id;
+            connection.end();
+        }
+        return result;
+
+    });
+    console.log("insert room result", result);
+    return result;
+}
+
+function getRoomExists(room_id){
+    var connection;
+    var result;
+    mysql.createConnection(connectionCredentials).then(function (conn) {
+        connection = conn;
+        return connection.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
+    }).then(function (rows) {
+        var count = rows[0].count;
+        if (count > 0) {
+            connection.end();
+            result = true;
+        } else {
+            connection.end();
+            result = false;
+        }
+    });
+
+    return result;
+}
+
+function getRoomAdminId(room_id){
+    var connection;
+    var result;
+    mysql.createConnection(connectionCredentials).then(function (conn) {
+        connection = conn;
+        return connection.query("Select room_admin_user_id as id from rooms where room_id = '" + room_id + "' ");
+    }).then(function (rows) {
+        result = rows[0].id;
+    });
+
+    return result;
+}

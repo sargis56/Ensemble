@@ -4,7 +4,7 @@
 
         socket.bind('open', function(data){
             console.log("web socket send room connect");
-            socket.send( 'room-connect', {username: '{{username}}', roomId: '{{roomId}}'})
+            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'})
         });
 
         socket.bind('close', function(data){
