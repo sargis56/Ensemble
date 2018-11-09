@@ -135,12 +135,14 @@ wss.on('connection', function connection(ws) {
                 var message = {"event":"room-users-updated","data":{"users": usersArray}}
                 for( clientIndex in clients){
                     //if(ws !=  clients[clientIndex].value){
+                        try{
                         clients[clientIndex].value.send(JSON.stringify(message));              
-                    //}
+                        }catch{}
                 }
                 break;
             case "room-disconnect":
                 var user_id = data.username;
+                console.log('user id disconnected', user_id);
                 var room_id = data.room_id;
                 rooms.removeClient(room_id, user_id);
                 
@@ -151,9 +153,13 @@ wss.on('connection', function connection(ws) {
                 }
                 var message = {"event":"room-users-updated","data":{"users": usersArray}}
                 for( clientIndex in clients){
-                    //if(ws !=  clients[clientIndex].value){
-                        clients[clientIndex].value.send(JSON.stringify(message));              
-                    //}            
+                    if(ws !=  clients[clientIndex].value){
+                        try{
+                            clients[clientIndex].value.send(JSON.stringify(message));   
+                        }catch{
+
+                        }           
+                    }            
                 }
                 break;
             case "room-":

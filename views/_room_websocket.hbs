@@ -7,9 +7,9 @@
             socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'})
         });
 
-        socket.bind('close', function(data){
-            socket.send( 'room-disconnect', {username: '{{username}}'})
-        });
+        window.onbeforeunload = function() {
+            socket.send( 'room-disconnect', {username: '{{user_id}}', room_id: '{{room_id}}'});
+        };
 
         // bind to server events
         socket.bind('some_event', function(data){

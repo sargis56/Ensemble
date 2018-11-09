@@ -51,7 +51,7 @@ var Rooms = /** @class */ (function () {
     Rooms.prototype.removeClient = function (room_id, user_id) {
         if (this.roomList[room_id] != undefined) {
             this.roomList[room_id].removeClient(user_id);
-            console.log("removed client from room with id", room_id);
+            console.log("removed client from room with id", user_id);
             return true;
         }
         else {

@@ -10,13 +10,12 @@ var Room = /** @class */ (function () {
         this.clients.push({ key: id, value: webSocket });
     };
     Room.prototype.removeClient = function (id) {
-        var index = -1;
-        if (index > -1) {
-            // this.clients.splice(index, 1);
-            console.log("removed client with id", id);
-        }
-        else {
-            console.log("could not remove client with id of", id);
+        for (var i = 0; i < this.clients.length; i++) {
+            console.log(this.clients[i].key);
+            if (this.clients[i].key === id) {
+                this.clients.splice(i, 1);
+                console.log("splice array for that user");
+            }
         }
     };
     return Room;

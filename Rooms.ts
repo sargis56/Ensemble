@@ -56,7 +56,7 @@ export default class Rooms{
         
         if (this.roomList[room_id] != undefined) {
             this.roomList[room_id].removeClient(user_id);
-            console.log("removed client from room with id", room_id);
+            console.log("removed client from room with id", user_id);
             return true;
         }else{
             console.log("could not remove user from room with id", room_id);

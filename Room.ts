@@ -12,12 +12,12 @@ export default class Room{
     }
 
     removeClient(id: string){
-        var index = -1;
-        if (index > -1) {
-            // this.clients.splice(index, 1);
-            console.log("removed client with id", id);
-        }else{
-            console.log("could not remove client with id of", id);
+        for( var i: number  = 0; i < this.clients.length; i++){
+            console.log(this.clients[i].key);
+            if(this.clients[i].key === id){
+                this.clients.splice(i, 1);
+                console.log("splice array for that user");
+            }
         }
     }
 }
