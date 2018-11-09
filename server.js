@@ -126,11 +126,35 @@ wss.on('connection', function connection(ws) {
                 var user_id = data.username;
                 var room_id = data.room_id;
                 rooms.addClient(room_id, user_id, ws);
+
+                var clients = rooms.getRoomClients(room_id);
+                var usersArray = [];
+                for( clientIndex in clients){
+                    usersArray.push(clients[clientIndex].key);              
+                }
+                var message = {"event":"room-users-updated","data":{"users": usersArray}}
+                for( clientIndex in clients){
+                    //if(ws !=  clients[clientIndex].value){
+                        clients[clientIndex].value.send(JSON.stringify(message));              
+                    //}
+                }
                 break;
             case "room-disconnect":
                 var user_id = data.username;
                 var room_id = data.room_id;
                 rooms.removeClient(room_id, user_id);
+                
+                var clients = rooms.getRoomClients(room_id);
+                var usersArray = [];
+                for( clientIndex in clients){
+                    usersArray.push(clients[clientIndex].key);              
+                }
+                var message = {"event":"room-users-updated","data":{"users": usersArray}}
+                for( clientIndex in clients){
+                    //if(ws !=  clients[clientIndex].value){
+                        clients[clientIndex].value.send(JSON.stringify(message));              
+                    //}            
+                }
                 break;
             case "room-":
 
@@ -405,8 +429,10 @@ app.get('/joinRoom', function (req, res) {
     let room_name = req.query.roomName || null;
     let room_password = req.query.roomPassword || null;
     let userAccessToken = req.query.userAccessToken;//=  //req.query.user secret or something
+    var user_id = req.session.user_id;
 
-    var data = {};
+    data = [];
+    var room_id; 
     if (room_name === null || room_password === null || userAccessToken === null) {
         data['error'] = 'You did not complete all of the form fields';
         res.send(data);
@@ -418,16 +444,33 @@ app.get('/joinRoom', function (req, res) {
             connection = conn;
             return connection.query("Select room_id, room_name, room_password, room_admin_user_id from rooms where room_name = '" + room_name + "' and room_password = '" + room_password + "' ");
         }).then(function (rows) {
-            var count = rows[0].count;
-            console.log("room count for that name", count)
+            var count = rows.length;
+            console.log("room count for that name and password", count)
             if (count > 0) {
+                room_id =  rows[0].room_id;
+                return connection.query("select count(user_id) as count from room_users where room_id = '" + room_id + "' and user_id = '" + user_id + "' ");
 
             } else {
-
-                connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
-
+                return null;
+               
             }
-            return count;
+        }).then( function(inRoomCount){
+            if(inRoomCount == null ){
+                console.log('your input name and password are incorrect');
+
+            }else if(inRoomCount[0].count > 0){
+                //already in room
+                data['success'] = 'You are already in that room';
+                console.log('you are already in a room');
+                req.session.room_id = room_id;
+            }else{
+                connection.query("insert into room_users (room_id, user_id) values( '" + room_id + "' , '" + user_id + "' )");
+                data['success'] = 'You are now in that room';
+                console.log('you are now in a room');
+                req.session.room_id = room_id;
+            }
+        }).then(function (){
+            res.send(data);
         })
     }
 });

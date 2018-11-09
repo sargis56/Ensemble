@@ -2,15 +2,17 @@
 <div id="user-list"></div>
 
 <script>
-    socket.bind('room-usersUpdated', function(data){
+    socket.bind('room-users-updated', function(data){
         UpdateUserList(data);
         console.log("Update Users List");
     });
 
     function UpdateUserList(users){
         $('#user-list').html("");
+            console.log(users);
 
-        $.each(data, function (index, user) {
+        $.each(users, function (index, user) {
+            console.log(user);
             var userHTML = ` <span>`+ user +`</span> `;
 
                 $('#user-list').append(userHTML);
