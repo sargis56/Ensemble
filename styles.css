@@ -59,6 +59,15 @@
 .playlist-song :hover{
     background-color: #393434;
 }
+.results{
+    background-color: #191414;
+    color: #FFFFFF;
+    background-color: #191414;
+    width: calc(100vw - 100px);
+    margin-left:50px;
+    display: none;
+    overflow-y: scroll;
+}
 
 .results button{
     background: none;
@@ -71,7 +80,9 @@
 
 .results-expanded{
     position: absolute;
-    top: 0px;
+    top: 100px;
+    height: calc(100vh - 100px);
+display: block;
 }
 .search-input{
     color: #1DB954; 
@@ -93,7 +104,7 @@
 }
 
 .track :hover button{
-    color: #1DB954
+    color: #1DB954;
 }
 
 .web-playback{

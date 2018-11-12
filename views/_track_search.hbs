@@ -20,7 +20,7 @@
                 }
             }).done(function (data) {
                 // console.log(data.tracks.items);
-                $('#results').html('');
+                $('.results').html('');
 
                 $.each(data.tracks.items, function (index, track) {
 
@@ -30,7 +30,7 @@
                         <button onclick="AddSongToPlaylist( '`+ track.id +`' , '` + track.name + `' , '` + track.uri + `' )" > <i class="fas fa-plus"></i> </button>
                     </div>`;
 
-                     $('#results').append(trackHtml);
+                     $('.results').append(trackHtml);
 
                 });
 
@@ -41,7 +41,7 @@
             socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
         }
 
-        $("#btn-search").on('change', function () {
+        $("#searchQuery").on('change', function () {
             if( $('#searchQuery').val() != ""){
                 if($(".search-input").hasClass('search-input-expanded')){
 
