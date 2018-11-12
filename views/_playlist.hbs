@@ -10,11 +10,8 @@
     function UpdatePlaylist(data){
         console.log(data);
 
-<<<<<<< HEAD
-        $('#list-playlist').html("");
-=======
+
         $('#list-playlist').html('');
->>>>>>> 200337f09c41d0754c3cc9afb78d7f6d7abc1940
         $.each(data.playlist, function (index, song) {
             var userHTML = ` <div class="playlist-song" onclick="PlayPlaylistTrack('`+ song.uri +`')">`+ song.title +`</div>`;
 
