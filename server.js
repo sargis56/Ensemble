@@ -394,7 +394,20 @@ app.get('/leaveRoom', function(req, res){
 });
 
 //add song to room
+app.get('/addSong', function(req, res){
+    var songID = req.query.songID;
+    var roomID = req.query.roomID;
+   // var UserID = req.query.usertoken;
 
+    var room = roomList.getRoomById(roomID);
+    room.addSong(songID);
+    console.log(room);
+    console.log(room.playlist);
+
+    res.send(songID);
+    res.send();
+
+});
 //get room songs
 
 //get room now playing

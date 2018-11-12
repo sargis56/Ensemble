@@ -3,7 +3,7 @@
 
     <script>
         $("#btn-search").bind('click', function () {
-            var searchQuery = $('#searchQuery').val();
+           var searchQuery = $('#searchQuery').val();
             console.log(access_token);
             $.ajax({
                 url: 'https://api.spotify.com/v1/search',
@@ -16,29 +16,38 @@
                     'type': 'track'
                 }
             }).done(function (data) {
-                // console.log(data.tracks.items);
+                console.log(data);
                 $('#results').html('');
 
                 $.each(data.tracks.items, function (index, track) {
+                    var trackHtml =` <div class='track'>
+                       
+                        <span>`+ track.name +`</span>
+                        <button onclick=AddSongToPlaylist("`+ track.id + `") >Add</button>
+                    </div>`;
 
-                    var trackView = document.createElement("div");
-                    var trackImage = document.createElement("image");
-                    //console.log(track.album.images[0].url);
-                    trackImage.src = "" + track.album.images[0].url;
-                    //console.log(trackImage.src);
-                    trackImage.style.width = "50px";
-                    trackImage.style.height = "50px";
+                     $('#results').append(trackHtml);
 
-                    var trackTitle = document.createElement("span");
-                    trackTitle.innerText = track.name;
-
-                    trackView.appendChild(trackImage);
-                    trackView.appendChild(trackTitle);
-
-                    $('#results').append(trackView);
 
                 });
 
             });
         });
+        function AddSongToPlaylist(id){
+
+            $.ajax({
+                url: '/addSong',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    'songID': id,
+                    'roomID': '{{roomId}}',
+                    'usertoken': '{{access_token}}'
+                }
+            }).done(function (data) {
+                console.log(data);
+            });
+
+        }
     </script>

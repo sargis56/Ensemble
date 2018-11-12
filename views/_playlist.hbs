@@ -1,7 +1,36 @@
+<button id="btn-test">test</button>
 <div id="list-playlist">
 
 </div>
 
 <script>
-    
+
+    $("#btn-test").bind('click', function () {
+
+           var trackHtml =` <div>
+                                <button></button>
+                            </div>`;
+
+        $.ajax({
+        url: '/addSong',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+        }).done(function (data) {
+            $.each(data, function (index, user) {
+                var userHTML = ` <span>`+ songID +`</span> `;
+
+                    $('#user-list').append(userHTML);
+
+
+            });
+        });
+
+               
+            $('#list-playlist').append(trackHtml);
+            
+           
+        });
+
+
 </script>
