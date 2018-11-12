@@ -13,7 +13,7 @@ var request = require('request');
  * https://github.com/request/request
 */
 
-var WebSocket = require('ws');
+// var WebSocket = require('ws');
 /**
  * Websocket Server module.
  * Create socket connections and send socket messages.
@@ -110,6 +110,7 @@ var generateRandomString = function (length) {
     return text;
 };
 
+const SocketServer = require('ws').Server;
 const wss = new SocketServer({ app });
 
 
