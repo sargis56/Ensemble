@@ -1,9 +1,10 @@
 <input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
 <div id="results">
+</div>
 
     <script>
         $("#btn-search").bind('click', function () {
-           var searchQuery = $('#searchQuery').val();
+            var searchQuery = $('#searchQuery').val();
             console.log(access_token);
             $.ajax({
                 url: 'https://api.spotify.com/v1/search',
@@ -16,23 +17,11 @@
                     'type': 'track'
                 }
             }).done(function (data) {
-                console.log(data);
+                // console.log(data.tracks.items);
                 $('#results').html('');
 
                 $.each(data.tracks.items, function (index, track) {
-                    var trackHtml =` <div class='track'>
-                       
-                        <span>`+ track.name +`</span>
-                        <button onclick=AddSongToPlaylist("`+ track.id + `") >Add</button>
-                    </div>`;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                     $('#results').append(trackHtml);
-
-<<<<<<< HEAD
-=======
                     var trackHtml = `<div class='track'>
                         <image width="50px" src="` + track.album.images[0].url + `"/>
                         <span>`+ track.name +`</span>
@@ -40,85 +29,13 @@
                     </div>`;
 
                      $('#results').append(trackHtml);
->>>>>>> 2a7607682963a5fa5a60a92bd27f932e0d3acd72
-=======
-                    var trackView = document.createElement("div");
-                    var trackImage = document.createElement("image");
-                    //console.log(track.album.images[0].url);
-                    trackImage.src = "" + track.album.images[0].url;
-                    //console.log(trackImage.src);
-                    trackImage.style.width = "50px";
-                    trackImage.style.height = "50px";
-
-=======
-                    var trackView = document.createElement("div");
-                    var trackImage = document.createElement("image");
-                    //console.log(track.album.images[0].url);
-                    trackImage.src = "" + track.album.images[0].url;
-                    //console.log(trackImage.src);
-                    trackImage.style.width = "50px";
-                    trackImage.style.height = "50px";
-
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
-                    var trackView = document.createElement("div");
-                    var trackImage = document.createElement("image");
-                    //console.log(track.album.images[0].url);
-                    trackImage.src = "" + track.album.images[0].url;
-                    //console.log(trackImage.src);
-                    trackImage.style.width = "50px";
-                    trackImage.style.height = "50px";
-
->>>>>>> parent of 2a76076... Added playlist track playback
-                    var trackTitle = document.createElement("span");
-                    trackTitle.innerText = track.name;
-
-                    trackView.appendChild(trackImage);
-                    trackView.appendChild(trackTitle);
-
-                    $('#results').append(trackView);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
->>>>>>> parent of 2a76076... Added playlist track playback
 
                 });
 
             });
         });
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        function AddSongToPlaylist(id){
-
-            $.ajax({
-                url: '/addSong',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    'songID': id,
-                    'roomID': '{{roomId}}',
-                    'usertoken': '{{access_token}}'
-                }
-            }).done(function (data) {
-                console.log(data);
-            });
-
-=======
 
         function AddSongToPlaylist(track_id, track_title, track_uri){
             socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
->>>>>>> 2a7607682963a5fa5a60a92bd27f932e0d3acd72
         }
-=======
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
->>>>>>> parent of 2a76076... Added playlist track playback
     </script>

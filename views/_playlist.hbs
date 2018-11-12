@@ -1,42 +1,8 @@
-<button id="btn-test">test</button>
 <div id="list-playlist">
 
 </div>
 
 <script>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    $("#btn-test").bind('click', function () {
-
-           var trackHtml =` <div>
-                                <button></button>
-                            </div>`;
-
-        $.ajax({
-        url: '/addSong',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-        }).done(function (data) {
-            $.each(data, function (index, user) {
-                var userHTML = ` <span>`+ songID +`</span> `;
-
-                    $('#user-list').append(userHTML);
-
-
-            });
-        });
-
-               
-            $('#list-playlist').append(trackHtml);
-            
-           
-        });
-
-=======
     socket.bind('room-playlist-updated', function(data){
         UpdatePlaylist(data);
     });
@@ -53,15 +19,5 @@
 
         });
     }
->>>>>>> 2a7607682963a5fa5a60a92bd27f932e0d3acd72
 
-=======
-    
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
-    
->>>>>>> parent of 2a76076... Added playlist track playback
-=======
-    
->>>>>>> parent of 2a76076... Added playlist track playback
 </script>

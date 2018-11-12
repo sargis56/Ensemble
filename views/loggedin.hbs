@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="/jquery-3.3.1.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>{{title}}</title>
 </head>
@@ -20,24 +21,16 @@
     </div>
 
     
-    <h1>You are logged in</h1>
+    <div class="vertical-spacer-m">
+        {{partial 'account_sidebar'}}
+    </div>
+
     <div>
-        
         {{partial 'lobby_connect'}}
         <br><br>
         {{partial 'lobby_create'}}
-<<<<<<< HEAD
-        
-
-        {{partial 'track_search'}}
-        {{partial 'user_list'}}
-
-=======
->>>>>>> 2a7607682963a5fa5a60a92bd27f932e0d3acd72
     </div>
-    <div>
-        {{partial 'account_sidebar'}}
-    </div>
+
 
 </body>
 </html>
