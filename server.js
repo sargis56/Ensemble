@@ -105,9 +105,84 @@ var generateRandomString = function (length) {
     return text;
 };
 
+<<<<<<< HEAD
 app.get('/jquery-3.3.1.min.js', function (req, res) {
     res.sendFile(__dirname + '/jquery-3.3.1.min.js');
 });
+=======
+const wss = new WebSocket.Server({ port: 8181 });
+
+
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        console.log(message);
+
+        var SocketData = JSON.parse(message);
+        var event = SocketData.event;
+        var data = SocketData.data;
+
+        switch (event) {
+            case "room-connect":
+                var user_id = data.username;
+                var room_id = data.room_id;
+                rooms.addClient(room_id, user_id, ws);
+
+                var clients = rooms.getRoomClients(room_id);
+                var usersArray = [];
+                for( clientIndex in clients){
+                    usersArray.push(clients[clientIndex].key);              
+                }
+                var message = {"event":"room-users-updated","data":{"users": usersArray}}
+                for( clientIndex in clients){
+                    //if(ws !=  clients[clientIndex].value){
+                        try{
+                        clients[clientIndex].value.send(JSON.stringify(message));              
+                        }catch{}
+                }
+                break;
+            case "room-disconnect":
+                var user_id = data.username;
+                console.log('user id disconnected', user_id);
+                var room_id = data.room_id;
+                rooms.removeClient(room_id, user_id);
+                
+                var clients = rooms.getRoomClients(room_id);
+                var usersArray = [];
+                for( clientIndex in clients){
+                    usersArray.push(clients[clientIndex].key);              
+                }
+                var message = {"event":"room-users-updated","data":{"users": usersArray}}
+                for( clientIndex in clients){
+                    if(ws !=  clients[clientIndex].value){
+                        try{
+                            clients[clientIndex].value.send(JSON.stringify(message));   
+                        }catch{
+
+                        }           
+                    }            
+                }
+                break;
+            case "room-":
+
+                break;
+        }
+
+        // ws.send(message);
+    });
+});
+
+//client side websocket plugin
+app.get('/ws_events_dispatcher.js', function (req, res) {
+    res.sendfile(__dirname + '/ws_events_dispatcher.js');
+});
+
+app.get('/jquery-3.3.1.min.js', function (req, res) {
+    res.sendFile(__dirname + '/jquery-3.3.1.min.js');
+});
+app.get('/styles.css', function (req, res) {
+    res.sendFile(__dirname + '/styles.css');
+});
+>>>>>>> parent of 2a76076... Added playlist track playback
 
 /**
  * The callback url for spotify after login.
@@ -261,6 +336,7 @@ app.get('/', function (req, res) {
 
 
 //Room page
+<<<<<<< HEAD
 app.get('/room', function (req, res){
 
     //check that we are logged in.
@@ -298,6 +374,44 @@ app.get('/room', function (req, res){
                 res.render('room', data);
             }
         }
+=======
+app.get('/room', function (req, res) {
+
+    //check that we are logged in. and have a room id storred
+    if (req.session.access_token != null && req.session.room_id != null) {
+        //check database for room;
+        var room = getRoomExists(req.session.room_id);
+
+        if (room !== false) {
+
+            //check if user is admin
+            var roomAdminId = getRoomAdminId(req.session.room_id);
+            var isAdmin = false;
+            if (roomAdminId == req.session.user_id) {
+                isAdmin = true;
+            }
+
+            var data = [];
+            data['access_token'] = req.session.access_token;
+            data['refresh_token'] = req.session.refresh_token;
+            data['user_id'] = req.session.user_id;
+            data['room_id'] = req.session.room_id;
+            console.log("room id for data send", req.session.room_id);
+            data['isAdmin'] = isAdmin;
+            data['layout'] = false;
+            if (isAdmin) {
+                res.render('room_admin', data);
+            } else {
+                res.render('room', data);
+            }
+
+        } else {
+            console.log("Room no longer exists");
+            req.session.room_id = null;
+            res.redirect('/');
+        }
+
+>>>>>>> parent of 2a76076... Added playlist track playback
 
     }else{
         //not logged in. not supposed to be here
@@ -340,9 +454,23 @@ app.get('/createRoom', function(req, res){
             // console.log(room);
             data['success'] = "Room created successfully";
 
+<<<<<<< HEAD
             req.session.roomId = room.roomId;
             
             // res.setHeader('Content-Type', 'application/json');
+=======
+        }).then(function(room_id){
+            if (room_id == false) {
+                data['error'] = "Room exists";
+                console.log("room not created in database");
+    
+            } else {
+                data['success'] = "Room created";
+                console.log("room created in database");
+                
+                req.session.room_id = room_id;
+            }
+>>>>>>> parent of 2a76076... Added playlist track playback
             res.send(data);
         }
     }
@@ -364,9 +492,25 @@ app.get('/joinRoom', function(req, res){
 
         // res.setHeader('Content-Type', 'application/json');
         res.send(data);
+<<<<<<< HEAD
     }else{
         var user = users.getUserByAccessToken(userAccessToken);
         console.log(user);
+=======
+    } else {
+
+        var connection;
+        var result ="not set";
+        mysql.createConnection(connectionCredentials).then(function (conn) {
+            connection = conn;
+            return connection.query("Select room_id, room_name, room_password, room_admin_user_id from rooms where room_name = '" + room_name + "' and room_password = '" + room_password + "' ");
+        }).then(function (rows) {
+            var count = rows.length;
+            console.log("room count for that name and password", count)
+            if (count > 0) {
+                room_id =  rows[0].room_id;
+                return connection.query("select count(user_id) as count from room_users where room_id = '" + room_id + "' and user_id = '" + user_id + "' ");
+>>>>>>> parent of 2a76076... Added playlist track playback
 
         var room = roomList.join(roomName, roomPassword, user);
 

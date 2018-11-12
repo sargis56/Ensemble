@@ -59,26 +59,6 @@ var Rooms = /** @class */ (function () {
             return true;
         }
     };
-    Rooms.prototype.addSong = function (room_id, user_id, track_id, track_title, track_uri) {
-        if (this.roomList[room_id] != undefined) {
-            this.roomList[room_id].addTrack(track_id, track_title, user_id, track_uri);
-            console.log("added song");
-            return true;
-        }
-        else {
-            console.log("could not add song");
-            return true;
-        }
-    };
-    Rooms.prototype.getRoomPlaylist = function (room_id) {
-        if (this.roomList[room_id] != undefined) {
-            return this.roomList[room_id].tracks;
-        }
-        else {
-            console.log("could not get playlist");
-            return true;
-        }
-    };
     return Rooms;
 }());
 exports.default = Rooms;

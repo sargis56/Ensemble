@@ -2,7 +2,6 @@
 export default class Room{
     room_id: string;
     clients: { key : string , value : WebSocket}[] = [];
-    tracks: { id : string , title : string, user_id:string, uri: string}[] = [];
     constructor(room_id : string){
         this.room_id = room_id;
         this.clients = [];
@@ -20,9 +19,5 @@ export default class Room{
                 console.log("splice array for that user");
             }
         }
-    }
-
-    addTrack(track_id: string, track_title: string, userid: string , track_uri: string){
-        this.tracks.push( { id: track_id, title: track_title, user_id: userid , uri: track_uri});
     }
 }
