@@ -3,5 +3,21 @@
 </div>
 
 <script>
-    
+    socket.bind('room-playlist-updated', function(data){
+        UpdatePlaylist(data);
+    });
+
+    function UpdatePlaylist(data){
+        console.log(data);
+
+        $('#list-playlist').html();
+        $.each(data.playlist, function (index, song) {
+            var userHTML = ` <div class="playlist-song" onclick="PlayPlaylistTrack('`+ song.uri +`')">`+ song.title +`</div>`;
+
+                $('#list-playlist').append(userHTML);
+
+
+        });
+    }
+
 </script>

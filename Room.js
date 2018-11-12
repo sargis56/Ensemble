@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Room = /** @class */ (function () {
     function Room(room_id) {
         this.clients = [];
+        this.tracks = [];
         this.room_id = room_id;
         this.clients = [];
     }
@@ -17,6 +18,9 @@ var Room = /** @class */ (function () {
                 console.log("splice array for that user");
             }
         }
+    };
+    Room.prototype.addTrack = function (track_id, track_title, userid, track_uri) {
+        this.tracks.push({ id: track_id, title: track_title, user_id: userid, uri: track_uri });
     };
     return Room;
 }());

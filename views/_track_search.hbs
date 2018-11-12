@@ -1,5 +1,6 @@
 <input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
 <div id="results">
+</div>
 
     <script>
         $("#btn-search").bind('click', function () {
@@ -21,24 +22,20 @@
 
                 $.each(data.tracks.items, function (index, track) {
 
-                    var trackView = document.createElement("div");
-                    var trackImage = document.createElement("image");
-                    //console.log(track.album.images[0].url);
-                    trackImage.src = "" + track.album.images[0].url;
-                    //console.log(trackImage.src);
-                    trackImage.style.width = "50px";
-                    trackImage.style.height = "50px";
+                    var trackHtml = `<div class='track'>
+                        <image width="50px" src="` + track.album.images[0].url + `"/>
+                        <span>`+ track.name +`</span>
+                        <button onclick="AddSongToPlaylist( '`+ track.id +`' , '` + track.name + `' , '` + track.uri + `' )" >Add</button>
+                    </div>`;
 
-                    var trackTitle = document.createElement("span");
-                    trackTitle.innerText = track.name;
-
-                    trackView.appendChild(trackImage);
-                    trackView.appendChild(trackTitle);
-
-                    $('#results').append(trackView);
+                     $('#results').append(trackHtml);
 
                 });
 
             });
         });
+
+        function AddSongToPlaylist(track_id, track_title, track_uri){
+            socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
+        }
     </script>

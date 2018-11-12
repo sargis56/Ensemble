@@ -63,4 +63,24 @@ export default class Rooms{
             return true;
         }
     }
+
+    addSong(room_id: string, user_id:string, track_id: string, track_title:string, track_uri: string){
+        if (this.roomList[room_id] != undefined) {
+            this.roomList[room_id].addTrack(track_id, track_title, user_id, track_uri);
+            console.log("added song");
+            return true;
+        }else{
+            console.log("could not add song");
+            return true;
+        }
+    }
+
+    getRoomPlaylist(room_id: string){
+        if (this.roomList[room_id] != undefined) {
+            return this.roomList[room_id].tracks;
+        }else{
+            console.log("could not get playlist");
+            return true;
+        }
+    }
 }
