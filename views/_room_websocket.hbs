@@ -9,7 +9,10 @@
 
         socket.bind('open', function(data){
             console.log("web socket send room connect");
-            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'})
+            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'});
+
+            //on load send get room playlist request
+            socket.send( 'room-get-songs', { room_id: '{{room_id}}'});       
         });
 
         
