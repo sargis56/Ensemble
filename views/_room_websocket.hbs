@@ -1,6 +1,6 @@
 <script>
-        
-        var socket = new FancyWebSocket("ws://ensemble-project.herokuapp.com:8181");
+        var HOST = location.origin.replace(/^http/, 'ws')
+        var socket = new FancyWebSocket(HOST);
 
         socket.bind('open', function(data){
             console.log("web socket send room connect");
