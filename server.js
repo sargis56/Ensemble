@@ -184,6 +184,17 @@ wss.on('connection', function connection(ws) {
                         }catch(e){}
                 }
                 break;
+            case "room-get-songs":
+                var room_id = data.room_id;
+                var playlistArray = rooms.getRoomPlaylist(room_id);
+                
+                var message = {"event":"room-playlist-updated","data":{"playlist": playlistArray}}
+                    //if(ws !=  clients[clientIndex].value){
+                try{
+                ws.send(JSON.stringify(message));              
+                }catch(e){}
+                
+                break;
         }
 
         // ws.send(message);

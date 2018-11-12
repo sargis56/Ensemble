@@ -11,7 +11,11 @@
     });
 
     //on load send get room playlist request
-
+    $( document ).ready(function() {
+            socket.send( 'room-get-songs', { room_id: '{{room_id}}'});       
+}   );
+    
+room-get-songs
     function UpdatePlaylist(data){
         console.log(data);
 
