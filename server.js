@@ -137,7 +137,9 @@ wss.on('connection', function connection(ws) {
                     //if(ws !=  clients[clientIndex].value){
                         try{
                         clients[clientIndex].value.send(JSON.stringify(message));              
-                        }catch{}
+                        }catch(e){
+
+                        }
                 }
                 break;
             case "room-disconnect":
@@ -158,7 +160,7 @@ wss.on('connection', function connection(ws) {
                         if(ws !=  clients[clientIndex].value){
                             try{
                                 clients[clientIndex].value.send(JSON.stringify(message));   
-                            }catch{
+                            }catch(e){
 
                             }           
                         }            
@@ -179,7 +181,7 @@ wss.on('connection', function connection(ws) {
                     //if(ws !=  clients[clientIndex].value){
                         try{
                         clients[clientIndex].value.send(JSON.stringify(message));              
-                        }catch{}
+                        }catch(e){}
                 }
                 break;
         }
