@@ -1,10 +1,10 @@
 <script>
-        var HOST = location.origin.replace(/^https/, 'ws');
-        if(HOST.includes(8080)){
+        var HOST = location.origin.replace(/^https/, 'wss');
+        {{!-- if(HOST.includes(8080)){
             HOST = HOST.replace('8080', '3000');
         }else{
             HOST += ":3000";
-        }
+        } --}}
         var socket = new FancyWebSocket(HOST);
 
         socket.bind('open', function(data){
