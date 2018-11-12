@@ -1,3 +1,26 @@
-<div>
-    
+<div class="playback-container">
+
+<div class="playback" style="max-width:900px; margin-left:auto; margin-right:auto; padding:10px; background-color:blcak;" >
+    <div style="display:inline-block; ">
+        <image id="np-image" src="/no-art.jpg" style="width:100px; height:100px; padding-right:10px;"/>
+    </div>
+    <div  style="display:inline-block; vertical-align:middle;" >
+        <h4 id="np-title">Title</h4>
+        <h5 id="np-artist">Artist</h5>
+    </div>
+    <div  style="display: inline-block; float: right; line-height: 100px;" >
+   
+    </div>
+
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </div>
+</div>
+
+<script>
+    socket.bind('room-playlist-updated', function(data){
+        $("#np-title").text(data.song_title);
+        $("#np-artist").text(data.song_artist);
+        $("#np-image").attr('src',data.song.song_image);
+
+    })
+</script>

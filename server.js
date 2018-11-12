@@ -195,6 +195,25 @@ wss.on('connection', function connection(ws) {
                 }catch(e){}
                 
                 break;
+                case "room-now-playing-change":
+                var room_id = data.room_id;
+                var song_id = data.song_id;
+                var song_title = data.song_title;
+                var song_artist = data.song_artist;
+                var song_image = data.song_image;
+                var playlistArray = rooms.getRoomPlaylist(room_id);
+                
+                var message = {"event":"room-playlist-updated","data":{"song_id}":song_id,"song_title":song_title,"song_artist":song_artist,"song_image":song_image}}
+                var clients = rooms.getRoomClients(room_id);
+                for( clientIndex in clients){
+                        try{
+                        clients[clientIndex].value.send(JSON.stringify(message));              
+                        }catch(e){}
+                }
+                      
+  
+                
+                break;
         }
 
         // ws.send(message);
