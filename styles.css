@@ -1,3 +1,8 @@
+body{
+    background-color: #121212;
+    color: #FFFFFF;
+}
+
 .lobby-connect, .lobby-create{
     max-width: 450px;
     margin-left:auto;
@@ -41,8 +46,10 @@
     color: white;
 }
 
-.list-playlist{
-    background-color: #191414;
+#list-playlist{
+    background-color: #181818;
+    height: calc(100vh - 300px);
+    overflow-y: scroll;
 }
 
 .playlist-song{
@@ -56,19 +63,41 @@
     color: #1DB954;
 }
 
-.playlist-song :hover{
+.playlist-song:hover{
     background-color: #393434;
 }
 .results{
-    background-color: #191414;
     color: #FFFFFF;
-    background-color: #191414;
+    background-color: #2e2e2e;
     width: calc(100vw - 100px);
     margin-left:50px;
     display: none;
     overflow-y: scroll;
 }
+.playback-container{
+    width:100%;
+    background-color: #282828;
+    margin-bottom: 20px;
 
+}
+.playback{
+    color: #b3b3b3;
+    display: flow-root;
+}
+
+.playlist-container{
+margin-top: 20px;
+}
+
+.playback button{
+    background: none;
+	color: inherit;
+	border: none;
+    padding: 20;
+    scale: 2;
+	font: inherit;
+	outline: inherit;
+}
 .results button{
     background: none;
 	color: inherit;
@@ -81,21 +110,44 @@
 .results-expanded{
     position: absolute;
     top: 100px;
-    height: calc(100vh - 100px);
-display: block;
+    height: calc(100vh - 120px);
+    display: block;
+    border-radius: 0px 0px 5px 5px;
+
 }
 .search-input{
-    color: #1DB954; 
+    color: #1DB954; max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 15px;
+    text-align: center;
+    background-color: #282828;
+    border-radius: 5px;
 }
 .search-input-expanded{
+    width: calc(100vw - 100px);
+    max-width: 100vw;
     position: absolute;
     top: 50px;
-    background-color: #191414;
-    width: calc(100vw - 20px);
-    margin-left:10px;
-    margin-right:10px;
-    
+    background-color: #2e2e2e;
+    width: calc(100vw - 120px);
+    margin-left:50px;
+    border-radius: 5px 5px 0px 0px;
 
+}
+
+.search-fade{
+    background-color: rgba(0, 0, 0, 0.5) ;
+    display: none;
+}
+
+.search-fade-expanded{
+    display: block;
+    position: fixed;
+    top:0px;
+    left:0px;
+    right: 0px;
+    bottom: 0px;
 }
 
 .track{

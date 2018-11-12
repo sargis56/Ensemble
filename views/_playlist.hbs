@@ -1,11 +1,16 @@
+<div class="playlist-container">
+<h4>Collaborative Queue</h4>
 <div id="list-playlist">
 
+</div>
 </div>
 
 <script>
     socket.bind('room-playlist-updated', function(data){
         UpdatePlaylist(data);
     });
+
+    //on load send get room playlist request
 
     function UpdatePlaylist(data){
         console.log(data);

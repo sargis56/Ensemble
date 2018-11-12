@@ -1,3 +1,4 @@
+<div class="search-fade"></div>
 <div class="search-input">
     <input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
 </div>
@@ -41,7 +42,7 @@
             socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
         }
 
-        $("#searchQuery").on('change', function () {
+        $("#searchQuery").on('input', function () {
             if( $('#searchQuery').val() != ""){
                 if($(".search-input").hasClass('search-input-expanded')){
 
@@ -54,6 +55,12 @@
                 }else{
                     $(".results").addClass('results-expanded')
                 }
+
+                if($(".search-fade").hasClass('search-fade-expanded')){
+
+                }else{
+                    $(".search-fade").addClass('search-fade-expanded')
+                }
             }else{
                 if($(".search-input").hasClass('search-input-expanded')){
                      $(".search-input").removeClass('search-input-expanded')
@@ -61,6 +68,9 @@
 
                 if($(".results").hasClass('results-expanded')){
                     $(".results").removeClass('results-expanded')
+                }
+                if($(".search-fade").hasClass('search-fade-expanded')){
+                    $(".search-fade").removeClass('search-fade-expanded')
                 }
             }
         });
