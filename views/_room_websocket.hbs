@@ -5,6 +5,7 @@
         }else{
             HOST += ":3000";
         } --}}
+        console.log(HOST);
         var socket = new FancyWebSocket(HOST);
 
         socket.bind('open', function(data){
