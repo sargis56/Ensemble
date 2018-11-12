@@ -183,6 +183,9 @@ app.get('/styles.css', function (req, res) {
     res.sendFile(__dirname + '/styles.css');
 });
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 2a76076... Added playlist track playback
+=======
 >>>>>>> parent of 2a76076... Added playlist track playback
 =======
 >>>>>>> parent of 2a76076... Added playlist track playback
@@ -408,7 +411,17 @@ app.get('/room', function (req, res) {
                 res.render('room', data);
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+        } else {
+            console.log("Room no longer exists");
+            req.session.room_id = null;
+            res.redirect('/');
+        }
+
+>>>>>>> parent of 2a76076... Added playlist track playback
 
         } else {
             console.log("Room no longer exists");

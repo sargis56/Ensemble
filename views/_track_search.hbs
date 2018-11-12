@@ -28,6 +28,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                      $('#results').append(trackHtml);
 
 <<<<<<< HEAD
@@ -59,6 +60,16 @@
                     trackImage.style.height = "50px";
 
 >>>>>>> parent of 2a76076... Added playlist track playback
+=======
+                    var trackView = document.createElement("div");
+                    var trackImage = document.createElement("image");
+                    //console.log(track.album.images[0].url);
+                    trackImage.src = "" + track.album.images[0].url;
+                    //console.log(trackImage.src);
+                    trackImage.style.width = "50px";
+                    trackImage.style.height = "50px";
+
+>>>>>>> parent of 2a76076... Added playlist track playback
                     var trackTitle = document.createElement("span");
                     trackTitle.innerText = track.name;
 
@@ -67,6 +78,9 @@
 
                     $('#results').append(trackView);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 2a76076... Added playlist track playback
+=======
 >>>>>>> parent of 2a76076... Added playlist track playback
 =======
 >>>>>>> parent of 2a76076... Added playlist track playback
@@ -75,6 +89,7 @@
 
             });
         });
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -100,6 +115,8 @@
             socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
 >>>>>>> 2a7607682963a5fa5a60a92bd27f932e0d3acd72
         }
+=======
+>>>>>>> parent of 2a76076... Added playlist track playback
 =======
 >>>>>>> parent of 2a76076... Added playlist track playback
 =======
