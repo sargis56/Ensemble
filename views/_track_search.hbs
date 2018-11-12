@@ -1,5 +1,7 @@
-<input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
-<div id="results">
+<div class="search-input">
+    <input type="text" id="searchQuery" placeholder="search" /> <button id="btn-search">Search</button>
+</div>
+<div class="results">
 </div>
 
     <script>
@@ -18,17 +20,17 @@
                 }
             }).done(function (data) {
                 // console.log(data.tracks.items);
-                $('#results').html('');
+                $('.results').html('');
 
                 $.each(data.tracks.items, function (index, track) {
 
                     var trackHtml = `<div class='track'>
                         <image width="50px" src="` + track.album.images[0].url + `"/>
                         <span>`+ track.name +`</span>
-                        <button onclick="AddSongToPlaylist( '`+ track.id +`' , '` + track.name + `' , '` + track.uri + `' )" >Add</button>
+                        <button onclick="AddSongToPlaylist( '`+ track.id +`' , '` + track.name + `' , '` + track.uri + `' )" > <i class="fas fa-plus"></i> </button>
                     </div>`;
 
-                     $('#results').append(trackHtml);
+                     $('.results').append(trackHtml);
 
                 });
 
@@ -38,4 +40,28 @@
         function AddSongToPlaylist(track_id, track_title, track_uri){
             socket.send( 'room-song-add', {username: '{{user_id}}', room_id: '{{room_id}}' ,song_id: track_id, song_title: track_title, song_uri : track_uri});
         }
+
+        $("#searchQuery").on('change', function () {
+            if( $('#searchQuery').val() != ""){
+                if($(".search-input").hasClass('search-input-expanded')){
+
+                }else{
+                    $(".search-input").addClass('search-input-expanded')
+                }
+
+                if($(".results").hasClass('results-expanded')){
+
+                }else{
+                    $(".results").addClass('results-expanded')
+                }
+            }else{
+                if($(".search-input").hasClass('search-input-expanded')){
+                     $(".search-input").removeClass('search-input-expanded')
+                }
+
+                if($(".results").hasClass('results-expanded')){
+                    $(".results").removeClass('results-expanded')
+                }
+            }
+        });
     </script>
