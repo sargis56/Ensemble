@@ -1,47 +1,28 @@
-import User from './User';
-import Song from './Song';
 
-export default class Room {
-
-    roomId: string;
-    roomName: string;
-    roomPassword: string;
-
-    admin: User;
-    conotributors: User[] = [];
-
-    blockedUsers: String[] = [];
-
-    playlist: Song[] = [];
-
-    constructor(roomN: string, roomPass: string, creator: User) {
-        this.roomName = roomN;
-        this.roomPassword = roomPass;
-        this.admin = creator;
-        this.roomId = roomN + "-" + this.generateRandomString(10);
+export default class Room{
+    room_id: string;
+    clients: { key : string , value : WebSocket}[] = [];
+    tracks: { id : string , title : string, user_id:string, uri: string}[] = [];
+    constructor(room_id : string){
+        this.room_id = room_id;
+        this.clients = [];
     }
 
-    userJoin( newUser: User) {
-        this.conotributors.push(newUser);
+    addClient(id: string, webSocket: WebSocket ){
+        this.clients.push({key: id, value: webSocket});
     }
 
-    userExit(user: User) {
-        // this.conotributors.slice();
-    }
-
-    addSong(newSong: Song) {
-        this.playlist.push(newSong);
-    }
-
-    generateRandomString(length: number) {
-        var text = '';
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    
-        for (var i = 0; i < length; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
+    removeClient(id: string){
+        for( var i: number  = 0; i < this.clients.length; i++){
+            console.log(this.clients[i].key);
+            if(this.clients[i].key === id){
+                this.clients.splice(i, 1);
+                console.log("splice array for that user");
+            }
         }
-        return text;
-    };
+    }
 
+    addTrack(track_id: string, track_title: string, userid: string , track_uri: string){
+        this.tracks.push( { id: track_id, title: track_title, user_id: userid , uri: track_uri});
+    }
 }
-

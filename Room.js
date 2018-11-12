@@ -1,33 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Room = /** @class */ (function () {
-    function Room(roomN, roomPass, creator) {
-        this.conotributors = [];
-        this.blockedUsers = [];
-        this.playlist = [];
-        this.roomName = roomN;
-        this.roomPassword = roomPass;
-        this.admin = creator;
-        this.roomId = roomN + "-" + this.generateRandomString(10);
+    function Room(room_id) {
+        this.clients = [];
+        this.tracks = [];
+        this.room_id = room_id;
+        this.clients = [];
     }
-    Room.prototype.userJoin = function (newUser) {
-        this.conotributors.push(newUser);
+    Room.prototype.addClient = function (id, webSocket) {
+        this.clients.push({ key: id, value: webSocket });
     };
-    Room.prototype.userExit = function (user) {
-        // this.conotributors.slice();
-    };
-    Room.prototype.addSong = function (newSong) {
-        this.playlist.push(newSong);
-    };
-    Room.prototype.generateRandomString = function (length) {
-        var text = '';
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (var i = 0; i < length; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
+    Room.prototype.removeClient = function (id) {
+        for (var i = 0; i < this.clients.length; i++) {
+            console.log(this.clients[i].key);
+            if (this.clients[i].key === id) {
+                this.clients.splice(i, 1);
+                console.log("splice array for that user");
+            }
         }
-        return text;
     };
-    ;
+    Room.prototype.addTrack = function (track_id, track_title, userid, track_uri) {
+        this.tracks.push({ id: track_id, title: track_title, user_id: userid, uri: track_uri });
+    };
     return Room;
 }());
 exports.default = Room;

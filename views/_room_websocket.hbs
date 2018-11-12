@@ -1,0 +1,22 @@
+<script>
+        
+        var socket = new FancyWebSocket("ws://localhost:8181");
+
+        socket.bind('open', function(data){
+            console.log("web socket send room connect");
+            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'})
+        });
+
+        
+        window.onbeforeunload = closingCode;
+        function closingCode(){
+            socket.send( 'room-disconnect', {username: '{{user_id}}', room_id: '{{room_id}}'});
+            return null;
+        }
+
+        // bind to server events
+        socket.bind('some_event', function(data){
+            alert(data.name + ' says: ' + data.message)
+        });
+        
+    </script>
