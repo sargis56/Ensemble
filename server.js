@@ -110,10 +110,7 @@ var generateRandomString = function (length) {
     return text;
 };
 
-const ws1 = new WebSocket('wss://ensemble-project.herokuapp.com');
-
-
-const wss = ws1.Server();
+const wss = new WebSocket.Server('wss://ensemble-project.herokuapp.com');
 
 
 wss.on('connection', function connection(ws) {
