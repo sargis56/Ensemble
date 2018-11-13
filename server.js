@@ -592,12 +592,6 @@ server.listen(process.env.PORT || 8080, function() {
   console.log('Listening on *:8000');
 });
 
-setInterval(function () {
-    var connection;
-    mysql.createConnection(connectionCredentials).then(function (conn) {
-        return conn.query("Select 1");
-    });
-}, 5000);
 
 
 function getUsers() {
