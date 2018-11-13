@@ -564,6 +564,17 @@ app.get('/getUserList', function (req, res) {
     res.send(user);
 });
 
+app.get('/logout', function (req, res) {
+    req.session.access_token = null;
+    req.session.userAccessCode = null;
+    req.session.refresh_token = null;
+    req.session.user_id = null;
+    req.session.room_id = null;
+
+    res.redirect('/');
+
+});
+
 //leave room
 app.get('/leaveRoom', function (req, res) {
 
