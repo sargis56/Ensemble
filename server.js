@@ -13,7 +13,7 @@ var request = require('request');
  * https://github.com/request/request
 */
 
-// var WebSocket = require('ws');
+var WebSocket = require('ws');
 /**
  * Websocket Server module.
  * Create socket connections and send socket messages.
@@ -110,8 +110,7 @@ var generateRandomString = function (length) {
     return text;
 };
 
-const SocketServer = require('ws').Server;
-const wss = new SocketServer({ app });
+const wss = new WebSocket.Server({ port: 3000 });
 
 
 wss.on('connection', function connection(ws) {
@@ -196,7 +195,7 @@ wss.on('connection', function connection(ws) {
                 }catch(e){}
                 
                 break;
-                case "room-now-playing-change":
+            case "room-nowplaying-changed":
                 var room_id = data.room_id;
                 var song_id = data.song_id;
                 var song_title = data.song_title;
@@ -204,7 +203,7 @@ wss.on('connection', function connection(ws) {
                 var song_image = data.song_image;
                 var playlistArray = rooms.getRoomPlaylist(room_id);
                 
-                var message = {"event":"room-playlist-updated","data":{"song_id}":song_id,"song_title":song_title,"song_artist":song_artist,"song_image":song_image}}
+                var message = {"event":"room-nowplaying-updated","data":{"song_id": song_id, "song_title": song_title, "song_artist": song_artist, "song_image": song_image}}
                 var clients = rooms.getRoomClients(room_id);
                 for( clientIndex in clients){
                         try{

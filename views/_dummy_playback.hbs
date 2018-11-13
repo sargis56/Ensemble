@@ -12,15 +12,15 @@
    
     </div>
 
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </div>
 </div>
 
 <script>
-    socket.bind('room-playlist-updated', function(data){
+    socket.bind('room-nowplaying-updated', function(data){
+        console.log(data);
         $("#np-title").text(data.song_title);
         $("#np-artist").text(data.song_artist);
-        $("#np-image").attr('src',data.song.song_image);
+        $("#np-image").attr('src',data.song_image);
 
     })
 </script>
