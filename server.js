@@ -111,7 +111,8 @@ var generateRandomString = function (length) {
 };
 
 const wss = new WebSocket.Server({
-    server: app
+    server: app,
+    rejectUnauthorized: false
 });
 
 
