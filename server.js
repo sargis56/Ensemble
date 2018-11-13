@@ -577,7 +577,22 @@ app.get('/leaveRoom', function (req, res) {
 
 
 console.log('Listening on 8080');
-app.listen(process.env.PORT || 8080);
+
+var http = require('http').Server(app);
+
+server.on('upgrade', function upgrade(request, socket, head) {
+    const pathname = url.parse(request.url).pathname;
+   
+    
+      wss.handleUpgrade(request, socket, head, function done(ws) {
+        wss.emit('connection', ws, request);
+      });
+    
+  });
+
+http.listen(8000, function() {
+  console.log('Listening on *:8000');
+});
 
 
 
