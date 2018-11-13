@@ -110,7 +110,9 @@ var generateRandomString = function (length) {
     return text;
 };
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({
+    server: app
+});
 
 
 wss.on('connection', function connection(ws) {
