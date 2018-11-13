@@ -256,7 +256,7 @@ app.get('/callback', function (req, res) {
 
     } else {
         console.log(req.headers.host);
-        var redirect = "http://" + req.headers.host + "/callback";
+        var redirect = "https://" + req.headers.host + "/callback";
 
         req.session.userAccessCode = code;
         var authOptions = {
