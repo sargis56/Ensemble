@@ -579,6 +579,7 @@ app.get('/leaveRoom', function (req, res) {
 console.log('Listening on 8080');
 
 var http = require('http').Server(app);
+const server = http.createServer();
 
 server.on('upgrade', function upgrade(request, socket, head) {
     const pathname = url.parse(request.url).pathname;
