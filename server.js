@@ -654,7 +654,8 @@ var connectionCredentials = {
 
 var pool = mysql.createPool(connectionCredentials);
 
-setTimeout(function(){
+setInterval(function(){
+    console.log("prevent idle");
     pool.getConnection().then(function (conn) {
         return pool.query("Select 1 ");
     });
