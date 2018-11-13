@@ -1,9 +1,9 @@
 <script>
         var HOST = location.origin.replace(/^https/, 'wss');
         if(HOST.includes(8080)){
-            HOST = HOST.replace('8080', '3000');
+            {{!-- HOST = HOST.replace('8080', '3000'); --}}
         }else{
-            HOST += ":3000";
+            {{!-- HOST += ":3000"; --}}
         }
         console.log(HOST);
         var socket = new FancyWebSocket('wss://ensemble-project.herokuapp.com');
