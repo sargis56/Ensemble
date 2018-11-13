@@ -581,10 +581,7 @@ console.log('Listening on 8080');
 var http = require('http');
 const server = http.createServer(app);
 
-server.on('upgrade', function upgrade(request, socket, head) {
-    const pathname = url.parse(request.url).pathname;
-   
-    
+server.on('upgrade', function upgrade(request, socket, head) {    
       wss.handleUpgrade(request, socket, head, function done(ws) {
         wss.emit('connection', ws, request);
       });
