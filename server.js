@@ -576,7 +576,6 @@ app.get('/leaveRoom', function (req, res) {
 //get room now playing
 
 
-console.log('Listening on 8080');
 
 var http = require('http');
 const server = http.createServer(app);
@@ -591,7 +590,7 @@ server.on('upgrade', function upgrade(request, socket, head) {
     
   });
 
-server.listen(8080, function() {
+server.listen(8000, function() {
   console.log('Listening on *:8080');
 });
 
