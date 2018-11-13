@@ -1,5 +1,5 @@
 <script>
-        var HOST = location.origin.replace(/^http/, 'ws');
+        var HOST = location.origin.replace(/^https/, 'wss');
         if(HOST.includes(8080)){
             HOST = HOST.replace('8080', '3000');
         }else{
