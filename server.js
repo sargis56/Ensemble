@@ -670,7 +670,7 @@ setInterval(function(){
     pool.getConnection().then(function (conn) {
         return pool.query("Select 1 ");
     });
-}, 1000);
+}, 10000);
 
 
 
