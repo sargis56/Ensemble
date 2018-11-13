@@ -6,7 +6,7 @@
             HOST += ":3000";
         }
         console.log(HOST);
-        var socket = new FancyWebSocket(HOST);
+        var socket = new FancyWebSocket('wss://ensemble-project.herokuapp.com');
 
         socket.bind('open', function(data){
             console.log("web socket send room connect");
