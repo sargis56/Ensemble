@@ -591,8 +591,8 @@ server.on('upgrade', function upgrade(request, socket, head) {
     
   });
 
-http.listen(8000, function() {
-  console.log('Listening on *:8000');
+server.listen(8080, function() {
+  console.log('Listening on *:8080');
 });
 
 
