@@ -306,7 +306,7 @@ app.get('/login', function (req, res) {
     res.cookie(stateKey, state);
 
     console.log(req.headers.host);
-    var redirect = "http://" + req.headers.host + "/callback";
+    var redirect = "https://" + req.headers.host + "/callback";
     // res.sendFile(__dirname + '/login.html');
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
