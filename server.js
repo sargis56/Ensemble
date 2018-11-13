@@ -654,6 +654,13 @@ var connectionCredentials = {
 
 var pool = mysql.createPool(connectionCredentials);
 
+setTimeout(function(){
+    pool.getConnection().then(function (conn) {
+        return pool.query("Select 1 ");
+    });
+}, 900000);
+
+
 
 
 function insertUser(user_id, access_token) {
