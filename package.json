@@ -9,6 +9,7 @@
     "exbars": "^1.0.4",
     "express": "~4.16.0",
     "express-session": "^1.15.6",
+    "http": "0.0.0",
     "mysql": "^2.16.0",
     "promise": "^8.0.2",
     "promise-mysql": "^3.3.1",
