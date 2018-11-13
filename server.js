@@ -389,7 +389,7 @@ app.get('/room', function (req, res) {
         }).then(function (rows) {
             var count = rows[0].count;
             if (count > 0) {
-                // connection.end();
+                pool.releaseConnection();
                 
                 
                 //check if user is admin
@@ -413,7 +413,7 @@ app.get('/room', function (req, res) {
                 }
 
             } else {
-                // connection.end();
+                pool.releaseConnection();
 
                 console.log("Room no longer exists");
                 req.session.room_id = null;
@@ -466,7 +466,7 @@ app.get('/createRoom', function (req, res) {
             return count;
         }).then(function (count) {
             if (count > 0) {
-                // connection.end();
+                pool.releaseConnection();
                 result = false;
                 return false;
             } else {
@@ -477,7 +477,7 @@ app.get('/createRoom', function (req, res) {
             if (rows != false) {
                 console.log("select from rooms for room id", result);
                 result = rows[0].id;
-                // connection.end();
+                pool.releaseConnection();
             }else{
                 result = null;
             }
@@ -552,7 +552,7 @@ app.get('/joinRoom', function (req, res) {
             }
         }).then(function (){
             res.send(data);
-            // connection.end();
+            pool.releaseConnection();
         })
     }
 });
@@ -668,12 +668,12 @@ function insertUser(user_id, access_token) {
         if (count > 0) {
             //update access code
             pool.query("Update users set access_token ='" + access_token + "' where user_id = '" + user_id + "' ");
-            // connection.end();
+            pool.releaseConnection();
 
         } else {
             //insert new user
             pool.query("insert into users (user_id, access_token) values( '" + user_id + "' , '" + access_token + "' )");
-            // connection.end();
+            pool.releaseConnection();
 
         }
         return count;
@@ -708,7 +708,7 @@ function insertRoom(room_name, room_password, user_id) {
         return count;
     }).then(function (count) {
         if (count > 0) {
-            // connection.end();
+            pool.releaseConnection();
             result = false;
             return false;
         } else {
@@ -719,7 +719,7 @@ function insertRoom(room_name, room_password, user_id) {
         if (rows != false) {
             console.log("select from rooms for room id", result);
             result = rows[0].id;
-            // connection.end();
+            pool.releaseConnection();
         }
         return result;
 
@@ -737,10 +737,10 @@ function getRoomExists(room_id){
     }).then(function (rows) {
         var count = rows[0].count;
         if (count > 0) {
-            // connection.end();
+            pool.releaseConnection();
             result = true;
         } else {
-            // connection.end();
+            pool.releaseConnection();
             result = false;
         }
     });
