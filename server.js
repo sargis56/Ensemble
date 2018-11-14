@@ -665,12 +665,12 @@ var connectionCredentials = {
 
 var pool = mysql.createPool(connectionCredentials);
 
-setInterval(function(){
-    console.log("prevent idle");
-    pool.getConnection().then(function (conn) {
-        return pool.query("Select 1 ");
-    });
-}, 10000);
+// setInterval(function(){
+//     console.log("prevent idle");
+//     pool.getConnection().then(function (conn) {
+//         return pool.query("Select 1 ");
+//     });
+// }, 10000);
 
 
 
