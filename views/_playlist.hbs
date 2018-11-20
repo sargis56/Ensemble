@@ -21,12 +21,19 @@
 
         $('#list-playlist').html('');
         $.each(data.playlist, function (index, song) {
-            var userHTML = ` <div class="playlist-song" onclick="PlayPlaylistTrack('`+ song.uri +`')">`+ song.title +`</div>`;
+            var userHTML = ` <div class="playlist-song" onclick="PlayPlaylistTrack('`+ song.uri +`')">`+ song.title +  
+                    `<button onclick="removeSongToPlaylist( '`+ track.id +`')" > <i class="fas fa-plus"></i> </button>
 
+                    </div>`;//////////////////////////
+                
                 $('#list-playlist').append(userHTML);
 
 
         });
+    }
+
+    function removeSongToPlaylist(track_id){
+        socket.send( 'room-song-remove', {room_id: '{{room_id}}' ,song_id: track_id});
     }
 
 </script>
