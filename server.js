@@ -110,7 +110,10 @@ var generateRandomString = function (length) {
     return text;
 };
 
-const wss = new WebSocket.Server({ port: 3000 });
+const wss = new WebSocket.Server({
+    server: app,
+    rejectUnauthorized: false
+});
 
 
 wss.on('connection', function connection(ws) {
@@ -195,7 +198,7 @@ wss.on('connection', function connection(ws) {
                 }catch(e){}
                 
                 break;
-                case "room-now-playing-change":
+            case "room-nowplaying-changed":
                 var room_id = data.room_id;
                 var song_id = data.song_id;
                 var song_title = data.song_title;
@@ -203,7 +206,7 @@ wss.on('connection', function connection(ws) {
                 var song_image = data.song_image;
                 var playlistArray = rooms.getRoomPlaylist(room_id);
                 
-                var message = {"event":"room-playlist-updated","data":{"song_id}":song_id,"song_title":song_title,"song_artist":song_artist,"song_image":song_image}}
+                var message = {"event":"room-nowplaying-updated","data":{"song_id": song_id, "song_title": song_title, "song_artist": song_artist, "song_image": song_image}}
                 var clients = rooms.getRoomClients(room_id);
                 for( clientIndex in clients){
                         try{
@@ -254,7 +257,7 @@ app.get('/callback', function (req, res) {
 
     } else {
         console.log(req.headers.host);
-        var redirect = "http://" + req.headers.host + "/callback";
+        var redirect = "https://" + req.headers.host + "/callback";
 
         req.session.userAccessCode = code;
         var authOptions = {
@@ -304,7 +307,7 @@ app.get('/login', function (req, res) {
     res.cookie(stateKey, state);
 
     console.log(req.headers.host);
-    var redirect = "http://" + req.headers.host + "/callback";
+    var redirect = "https://" + req.headers.host + "/callback";
     // res.sendFile(__dirname + '/login.html');
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
@@ -380,13 +383,13 @@ app.get('/room', function (req, res) {
 
         var room_id = req.session.room_id;
         //check database for room;
-        mysql.createConnection(connectionCredentials).then(function (conn) {
+        pool.getConnection().then(function (conn) {
             connection = conn;
-            return connection.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
+            return pool.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
         }).then(function (rows) {
             var count = rows[0].count;
             if (count > 0) {
-                connection.end();
+                //pool.releaseConnection();
                 
                 
                 //check if user is admin
@@ -410,7 +413,7 @@ app.get('/room', function (req, res) {
                 }
 
             } else {
-                connection.end();
+                //pool.releaseConnection();
 
                 console.log("Room no longer exists");
                 req.session.room_id = null;
@@ -447,9 +450,9 @@ app.get('/createRoom', function (req, res) {
 
         var connection;
         var result ="not set";
-        mysql.createConnection(connectionCredentials).then(function (conn) {
+        pool.getConnection().then(function (conn) {
             connection = conn;
-            return connection.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
+            return pool.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
         }).then(function (rows) {
             var count = rows[0].count;
             console.log("room count for that name", count)
@@ -457,24 +460,24 @@ app.get('/createRoom', function (req, res) {
 
             } else {
 
-                connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
+                pool.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
 
             }
             return count;
         }).then(function (count) {
             if (count > 0) {
-                connection.end();
+                //pool.releaseConnection();
                 result = false;
                 return false;
             } else {
                 result = true;
-                return connection.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
+                return pool.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
             }
         }).then(function (rows) {
             if (rows != false) {
                 console.log("select from rooms for room id", result);
                 result = rows[0].id;
-                connection.end();
+                //pool.releaseConnection();
             }else{
                 result = null;
             }
@@ -514,9 +517,9 @@ app.get('/joinRoom', function (req, res) {
 
         var connection;
         var result ="not set";
-        mysql.createConnection(connectionCredentials).then(function (conn) {
+        pool.getConnection().then(function (conn) {
             connection = conn;
-            return connection.query("Select room_id, room_name, room_password, room_admin_user_id from rooms where room_name = '" + room_name + "' and room_password = '" + room_password + "' ");
+            return pool.query("Select room_id, room_name, room_password, room_admin_user_id from rooms where room_name = '" + room_name + "' and room_password = '" + room_password + "' ");
         }).then(function (rows) {
             var count = rows.length;
             console.log("room count for that name and password", count)
@@ -526,7 +529,7 @@ app.get('/joinRoom', function (req, res) {
                     req.session.admin_room_id = room_id;
                     console.log("user is room admin");
                 }
-                return connection.query("select count(user_id) as count from room_users where room_id = '" + room_id + "' and user_id = '" + user_id + "' ");
+                return pool.query("select count(user_id) as count from room_users where room_id = '" + room_id + "' and user_id = '" + user_id + "' ");
 
             } else {
                 return null;
@@ -542,13 +545,14 @@ app.get('/joinRoom', function (req, res) {
                 console.log('you are already in a room');
                 req.session.room_id = room_id;
             }else{
-                connection.query("insert into room_users (room_id, user_id) values( '" + room_id + "' , '" + user_id + "' )");
+                pool.query("insert into room_users (room_id, user_id) values( '" + room_id + "' , '" + user_id + "' )");
                 data['success'] = 'You are now in that room';
                 console.log('you are now in a room');
                 req.session.room_id = room_id;
             }
         }).then(function (){
             res.send(data);
+            //pool.releaseConnection();
         })
     }
 });
@@ -558,6 +562,17 @@ app.get('/getUserList', function (req, res) {
     var user = users.getUserList();
     var roomid = req.query.room;
     res.send(user);
+});
+
+app.get('/logout', function (req, res) {
+    req.session.access_token = null;
+    req.session.userAccessCode = null;
+    req.session.refresh_token = null;
+    req.session.user_id = null;
+    req.session.room_id = null;
+
+    res.redirect('/');
+
 });
 
 //leave room
@@ -574,7 +589,20 @@ app.get('/leaveRoom', function (req, res) {
 
 
 console.log('Listening on 8080');
-app.listen(process.env.PORT || 8080);
+
+var http = require('http');
+const server = http.createServer(app);
+
+server.on('upgrade', function upgrade(request, socket, head) {    
+      wss.handleUpgrade(request, socket, head, function done(ws) {
+        wss.emit('connection', ws, request);
+      });
+    
+  });
+
+server.listen(process.env.PORT || 8080, function() {
+  console.log('Listening on *:8000');
+});
 
 
 
@@ -630,29 +658,41 @@ var connectionCredentials = {
     host: 'us-cdbr-iron-east-01.cleardb.net',
     user: 'ba4392ebdbcb5e',
     password: 'a3629f9c',
-    database: 'heroku_a06745153006398'
+    database: 'heroku_a06745153006398',
+    connectionLimit: 10,
+    acquireTimeout: 1000000
 };
+
+var pool = mysql.createPool(connectionCredentials);
+
+// setInterval(function(){
+//     console.log("prevent idle");
+//     pool.getConnection().then(function (conn) {
+//         return pool.query("Select 1 ");
+//     });
+// }, 10000);
+
 
 
 
 function insertUser(user_id, access_token) {
 
     var connection;
-    mysql.createConnection(connectionCredentials).then(function (conn) {
+    pool.getConnection().then(function (conn) {
         connection = conn;
-        return connection.query("Select count(user_id) as count from users where user_id = '" + user_id + "' ");
+        return pool.query("Select count(user_id) as count from users where user_id = '" + user_id + "' ");
     }).then(function (rows) {
         var count = rows[0].count;
 
         if (count > 0) {
             //update access code
-            connection.query("Update users set access_token ='" + access_token + "' where user_id = '" + user_id + "' ");
-            connection.end();
+            pool.query("Update users set access_token ='" + access_token + "' where user_id = '" + user_id + "' ");
+            //pool.releaseConnection();
 
         } else {
             //insert new user
-            connection.query("insert into users (user_id, access_token) values( '" + user_id + "' , '" + access_token + "' )");
-            connection.end();
+            pool.query("insert into users (user_id, access_token) values( '" + user_id + "' , '" + access_token + "' )");
+            //pool.releaseConnection();
 
         }
         return count;
@@ -671,9 +711,9 @@ function insertRoom(room_name, room_password, user_id) {
 
     var connection;
     var result ="not set";
-    mysql.createConnection(connectionCredentials).then(function (conn) {
+    pool.getConnection().then(function (conn) {
         connection = conn;
-        return connection.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
+        return pool.query("Select count(*) as count from rooms where room_name = '" + room_name + "' ");
     }).then(function (rows) {
         var count = rows[0].count;
         console.log("room count for that name", count)
@@ -681,24 +721,24 @@ function insertRoom(room_name, room_password, user_id) {
 
         } else {
 
-            connection.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
+            pool.query("insert into rooms (room_name, room_password, room_admin_user_id) values( '" + room_name + "' , '" + room_password + "' , '" + user_id + "' )");
 
         }
         return count;
     }).then(function (count) {
         if (count > 0) {
-            connection.end();
+            //pool.releaseConnection();
             result = false;
             return false;
         } else {
             result = true;
-            return connection.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
+            return pool.query("Select room_id as id from rooms where room_name = '" + room_name + "' ");
         }
     }).then(function (rows) {
         if (rows != false) {
             console.log("select from rooms for room id", result);
             result = rows[0].id;
-            connection.end();
+            //pool.releaseConnection();
         }
         return result;
 
@@ -710,16 +750,16 @@ function insertRoom(room_name, room_password, user_id) {
 function getRoomExists(room_id){
     var connection;
     var result;
-    mysql.createConnection(connectionCredentials).then(function (conn) {
+    pool.getConnection().then(function (conn) {
         connection = conn;
-        return connection.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
+        return pool.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
     }).then(function (rows) {
         var count = rows[0].count;
         if (count > 0) {
-            connection.end();
+            //pool.releaseConnection();
             result = true;
         } else {
-            connection.end();
+            //pool.releaseConnection();
             result = false;
         }
     });
@@ -730,9 +770,9 @@ function getRoomExists(room_id){
 function getRoomAdminId(room_id){
     var connection;
     var result;
-    mysql.createConnection(connectionCredentials).then(function (conn) {
+    pool.getConnection().then(function (conn) {
         connection = conn;
-        return connection.query("Select room_admin_user_id as id from rooms where room_id = '" + room_id + "' ");
+        return pool.query("Select room_admin_user_id as id from rooms where room_id = '" + room_id + "' ");
     }).then(function (rows) {
         result = rows[0].id;
     });

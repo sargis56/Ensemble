@@ -1,15 +1,20 @@
 <script>
-        var HOST = location.origin.replace(/^http/, 'ws');
+        var HOST = location.origin.replace(/^https/, 'wss');
         if(HOST.includes(8080)){
-            HOST = HOST.replace('8080', '3000');
+            {{!-- HOST = HOST.replace('8080', '3000'); --}}
         }else{
-            HOST += ":3000";
+            {{!-- HOST += ":3000"; --}}
         }
-        var socket = new FancyWebSocket(HOST);
+        console.log(HOST);
+        var socket = new FancyWebSocket('wss://ensemble-project.herokuapp.com');
 
         socket.bind('open', function(data){
             console.log("web socket send room connect");
-            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'})
+            socket.send( 'room-connect', {username: '{{user_id}}', room_id: '{{room_id}}'});
+
+            //on load send get room playlist request
+            socket.send( 'room-get-songs', { room_id: '{{room_id}}'});       
+
         });
 
         
