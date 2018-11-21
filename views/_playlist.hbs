@@ -21,7 +21,7 @@
         $('#list-playlist').html('');
         $.each(data.playlist, function (index, song) {
             var userHTML = ` <div class="playlist-song" onclick="PlayPlaylistTrack('`+ song.uri +`')">`+ song.title +  
-                    `<button onclick="removeSongToPlaylist( '`+ track.id +`')" > <i class="fas fa-plus"></i> </button>
+                    `<button onclick="removeSongToPlaylist( '`+ song.id +`')" > <i class="fas fa-plus"></i> </button>
 
                     </div>`;//////////////////////////
                 

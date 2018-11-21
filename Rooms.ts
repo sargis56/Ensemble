@@ -7,10 +7,28 @@ export default class Rooms{
 
     }
 
-    addRoom(room_id: string){
-        var newRoom: Room = new Room(room_id); 
-        this.roomList[room_id] =  newRoom ;
-        console.log("room list",this.roomList);
+    addRoom(room_id: string, room_password:string, user_id: string){
+        if (this.roomList[room_id] === undefined) {
+            var newRoom: Room = new Room(room_id, room_password, user_id); 
+            this.roomList[room_id] =  newRoom ;
+            console.log("room list",this.roomList);
+            return room_id;
+        }else{
+            return false;
+            //room exists
+        }
+    }
+
+    joinRoom(room_id: string, room_password:string){
+        if (this.roomList[room_id] === undefined) {
+            return false;
+        }else{
+            if(this.roomList[room_id].room_password == room_password){
+                return true;
+            }else{
+                return false;
+            }
+        }
     }
 
     removeRoom(room_id: string){
@@ -43,12 +61,12 @@ export default class Rooms{
 
             return true;
         }else{
-            this.addRoom(room_id);
+            // this.addRoom(room_id);
+            /*
             this.roomList[room_id].addClient(user_id, ws);
             console.log("added client to a new room with id of", room_id);
-            console.log("room list",this.roomList);
-
-            return true;
+            console.log("room list",this.roomList);*/
+            return false;
         }
     }
 
@@ -81,6 +99,15 @@ export default class Rooms{
         }else{
             console.log("could not get playlist");
             return true;
+        }
+    }
+
+    getRoomAdmin(room_id: string){
+        if (this.roomList[room_id] != undefined) {
+            return this.roomList[room_id].tracks;
+        }else{
+            console.log("could not get playlist");
+            return false;
         }
     }
 }

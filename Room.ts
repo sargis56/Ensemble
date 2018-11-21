@@ -1,10 +1,14 @@
 
 export default class Room{
     room_id: string;
+    room_password: string;
+    admin_id: string;
     clients: { key : string , value : WebSocket}[] = [];
     tracks: { id : string , title : string, user_id:string, uri: string}[] = [];
-    constructor(room_id : string){
+    constructor(room_id : string, room_password: string, admin_id: string){
         this.room_id = room_id;
+        this.room_password = room_password;
+        this.admin_id = admin_id;
         this.clients = [];
     }
 

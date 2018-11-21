@@ -257,7 +257,7 @@ app.get('/callback', function (req, res) {
 
     } else {
         console.log(req.headers.host);
-        var redirect = "https://" + req.headers.host + "/callback";
+        var redirect = "http://" +  req.headers.host + "/callback"; //"https://" +
 
         req.session.userAccessCode = code;
         var authOptions = {
@@ -307,7 +307,7 @@ app.get('/login', function (req, res) {
     res.cookie(stateKey, state);
 
     console.log(req.headers.host);
-    var redirect = "https://" + req.headers.host + "/callback";
+    var redirect = "http://" +  req.headers.host + "/callback"; //"https://" +
     // res.sendFile(__dirname + '/login.html');
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
@@ -382,7 +382,26 @@ app.get('/room', function (req, res) {
     if (req.session.access_token != null && req.session.room_id != null) {
 
         var room_id = req.session.room_id;
+        var isAdmin = false;
+        if(req.session.room_id == req.session.admin_room_id){
+            isAdmin = true;
+        }
+
+        var data = [];
+        data['access_token'] = req.session.access_token;
+        data['refresh_token'] = req.session.refresh_token;
+        data['user_id'] = req.session.user_id;
+        data['room_id'] = req.session.room_id;
+        console.log("room id for data send", req.session.room_id);
+        data['isAdmin'] = isAdmin;
+        data['layout'] = false;
+        if (isAdmin) {
+            res.render('room_admin', data);
+        } else {
+            res.render('room', data);
+        }
         //check database for room;
+        /*
         pool.getConnection().then(function (conn) {
             connection = conn;
             return pool.query("Select count(*) as count from rooms where room_id = '" + room_id + "' ");
@@ -420,7 +439,7 @@ app.get('/room', function (req, res) {
                 res.redirect('/');
             }
         });
-
+        */
     } else {
         //not logged in. not supposed to be here
         console.log("user is not in any rooms");
@@ -448,6 +467,17 @@ app.get('/createRoom', function (req, res) {
         res.send(data);
     } else {
 
+        var result = rooms.addRoom(room_name,room_password, user_id);
+        if(result == false){
+            data['error'] = "Room exists";
+        }else{
+            req.session.room_id = result;
+            req.session.admin_room_id = result;
+            data['success'] = "Room created";
+        }
+        res.send(data);
+
+        /*
         var connection;
         var result ="not set";
         pool.getConnection().then(function (conn) {
@@ -497,6 +527,7 @@ app.get('/createRoom', function (req, res) {
             }
             res.send(data);
         });
+        */
     }
 });
 
@@ -515,6 +546,20 @@ app.get('/joinRoom', function (req, res) {
         res.send(data);
     } else {
 
+        var result = rooms.joinRoom(room_name, room_password);
+
+        if(result){
+            data['success'] = 'You are now in that room';
+            console.log('you are now in a room');
+            req.session.room_id = room_name;
+            res.send(data);
+            
+        }else{
+            data['error'] = 'The room credentials you entered are incorrect';
+            req.session.room_id = null;
+            res.send(data);
+        }
+        /*
         var connection;
         var result ="not set";
         pool.getConnection().then(function (conn) {
@@ -554,6 +599,7 @@ app.get('/joinRoom', function (req, res) {
             res.send(data);
             //pool.releaseConnection();
         })
+        */
     }
 });
 

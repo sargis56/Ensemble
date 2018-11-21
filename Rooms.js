@@ -8,10 +8,30 @@ var Rooms = /** @class */ (function () {
     function Rooms() {
         this.roomList = {};
     }
-    Rooms.prototype.addRoom = function (room_id) {
-        var newRoom = new Room_1.default(room_id);
-        this.roomList[room_id] = newRoom;
-        console.log("room list", this.roomList);
+    Rooms.prototype.addRoom = function (room_id, room_password, user_id) {
+        if (this.roomList[room_id] === undefined) {
+            var newRoom = new Room_1.default(room_id, room_password, user_id);
+            this.roomList[room_id] = newRoom;
+            console.log("room list", this.roomList);
+            return room_id;
+        }
+        else {
+            return false;
+            //room exists
+        }
+    };
+    Rooms.prototype.joinRoom = function (room_id, room_password) {
+        if (this.roomList[room_id] === undefined) {
+            return false;
+        }
+        else {
+            if (this.roomList[room_id].room_password == room_password) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     };
     Rooms.prototype.removeRoom = function (room_id) {
         if (this.roomList[room_id] != undefined) {
@@ -41,11 +61,12 @@ var Rooms = /** @class */ (function () {
             return true;
         }
         else {
-            this.addRoom(room_id);
+            // this.addRoom(room_id);
+            /*
             this.roomList[room_id].addClient(user_id, ws);
             console.log("added client to a new room with id of", room_id);
-            console.log("room list", this.roomList);
-            return true;
+            console.log("room list",this.roomList);*/
+            return false;
         }
     };
     Rooms.prototype.removeClient = function (room_id, user_id) {
@@ -77,6 +98,15 @@ var Rooms = /** @class */ (function () {
         else {
             console.log("could not get playlist");
             return true;
+        }
+    };
+    Rooms.prototype.getRoomAdmin = function (room_id) {
+        if (this.roomList[room_id] != undefined) {
+            return this.roomList[room_id].tracks;
+        }
+        else {
+            console.log("could not get playlist");
+            return false;
         }
     };
     return Rooms;

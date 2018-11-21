@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Room = /** @class */ (function () {
-    function Room(room_id) {
+    function Room(room_id, room_password, admin_id) {
         this.clients = [];
         this.tracks = [];
         this.room_id = room_id;
+        this.room_password = room_password;
+        this.admin_id = admin_id;
         this.clients = [];
     }
     Room.prototype.addClient = function (id, webSocket) {
