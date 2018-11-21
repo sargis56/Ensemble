@@ -355,7 +355,7 @@ app.get('/', function (req, res) {
             }
             else {
                 user_id = body.id;
-                insertUser(user_id, access_token);
+                // insertUser(user_id, access_token);
                 req.session.user_id = user_id;
 
                 var data = [];
@@ -374,6 +374,27 @@ app.get('/', function (req, res) {
 
 });
 
+app.get('/test', function (req, res){
+    var data = [];
+    data['layout'] = false
+    res.render('test', data);
+});
+
+app.get('/getTests', function (req, res){
+    var tests = [];
+    var data = [];
+    var user_id = req.session.user_id;
+    var user_token = req.session.userAccessToken;
+    tests.push({ test: "/createRoom", expected_result: true, data: {roomName: "test-room", roomPassword: "password", user_id: user_id} });
+    tests.push({ test: "/createRoom", expected_result: false, data: {roomName: "test-room2", roomPassword: ""} });
+    tests.push({ test: "/joinRoom", expected_result: true, data: {roomName: "test-room", roomPassword: "password", userAccessToken: user_token} });
+    tests.push({ test: "/joinRoom", expected_result: false, data: {roomName: "test-room", roomPassword: "", userAccessToken: user_token} });
+    tests.push({ test: "/joinRoom", expected_result: false, data: {roomName: "test-1234", roomPassword: "password", userAccessToken: user_token} });
+
+    data['tests'] = "hello";
+
+    res.send(tests);
+});
 
 //Room page
 app.get('/room', function (req, res) {
