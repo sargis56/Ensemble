@@ -187,6 +187,23 @@ wss.on('connection', function connection(ws) {
                         }catch(e){}
                 }
                 break;
+
+                case "room-song-remove":
+                var song_id = data.song_id;
+
+                var room_id = data.room_id;
+                rooms.removeSong(room_id, song_id);
+                var playlistArray = rooms.getRoomPlaylist(room_id);                 //////////////////////////////
+                var clients = rooms.getRoomClients(room_id);
+                var message = {"event":"room-playlist-updated","data":{"playlist": playlistArray}}
+                for( clientIndex in clients){
+                    //if(ws !=  clients[clientIndex].value){
+                        try{
+                        clients[clientIndex].value.send(JSON.stringify(message));              
+                        }catch(e){}
+                }
+                break;
+
             case "room-get-songs":
                 var room_id = data.room_id;
                 var playlistArray = rooms.getRoomPlaylist(room_id);

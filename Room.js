@@ -24,6 +24,13 @@ var Room = /** @class */ (function () {
     Room.prototype.addTrack = function (track_id, track_title, userid, track_uri) {
         this.tracks.push({ id: track_id, title: track_title, user_id: userid, uri: track_uri });
     };
+    
+    Room.prototype.removeFromTrack = function (track_id) {           ///////////////////////
+        this.tracks = this.tracks.filter(function(item) { 
+            return item !== (track_id);
+        });
+    };
+
     return Room;
 }());
 exports.default = Room;

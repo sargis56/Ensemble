@@ -80,6 +80,18 @@ var Rooms = /** @class */ (function () {
             return true;
         }
     };
+    Rooms.prototype.removeSong = function (room_id, track_id) {
+        if (this.roomList[room_id] != undefined) {
+            this.roomList[room_id].removeFromTrack(track_id); /////////////////////////////////
+            console.log("Song Removed");
+            return true;
+        }
+        else {
+            console.log("could not remove song");
+            return true;
+        }
+    };
+
     Rooms.prototype.addSong = function (room_id, user_id, track_id, track_title, track_uri) {
         if (this.roomList[room_id] != undefined) {
             this.roomList[room_id].addTrack(track_id, track_title, user_id, track_uri);
