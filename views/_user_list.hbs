@@ -1,7 +1,60 @@
-<h4>Users</h4>
+<div id="report" style="display:none; position: fixed; top: 10px; left: 10px; width: 350px; max-width: calc(100vw - 20px;); background-color: white; color: black; padding: 20px">
+
+    <h4>Playlist</h4>
+    <span>Total Songs:</span> <span id="report-song-total"></span><br>
+    <br>
+    <h4>Users</h4>
+    <span>Total Users:</span> <span id="report-user-total"></span><br>
+    <span>Users Collaborated: </span> <span id="report-user-collaborated"></span><br>
+    <span>Top Collaborator: </span> <span id="report-top-user" ></span><br>
+    <br>
+    <button onclick="$('#report').hide();">Close Report</button>
+</div>
+
+<h4>Users</h4><button onclick="getReport()">View Report</button>
 <div id="user-list"></div>
 
 <script>
+
+</script>
+
+<script>
+
+    socket.bind('room-report', function(data){
+        ShowReport(data);
+    });
+
+    function ShowReport(data){
+        $('#report').show();
+        $('#report-song-total').text(data.playlist.length);
+        $('#report-user-total').text(data.clients.length);
+
+        var contributers = new Array();
+        var contributersAll = new Array();
+        for(var i = 0; i < data.playlist.length; i++){
+            contributersAll.push(data.playlist[i].user_id);
+
+            if(!contributers.includes(data.playlist[i].user_id)){
+                contributers.push(data.playlist[i].user_id);
+            }
+        }
+
+        $('#report-user-collaborated').text(contributers.length);
+        $('#report-top-user').text(mode(contributersAll));
+
+    }
+
+    function mode(arr){
+        return arr.sort((a,b) =>
+            arr.filter(v => v===a).length
+            - arr.filter(v => v===b).length
+        ).pop();
+    }
+
+    function getReport(){
+        socket.send( 'room-get-report', {username: '{{user_id}}', room_id: '{{room_id}}'});
+    }
+    
     socket.bind('room-users-updated', function(data){
         UpdateUserList(data);
         console.log("Update Users List");

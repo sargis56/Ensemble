@@ -185,6 +185,15 @@ wss.on('connection', function connection(ws) {
                     }
                 }
                 break;
+            case "room-get-report":
+                var user_id = data.username;
+                var room_id = data.room_id;
+                var playlistArray = rooms.getRoomPlaylist(room_id);
+                var clients = rooms.getRoomClients(room_id);
+                var message = {"event":"room-report","data":{"playlist": playlistArray, "clients": clients}}
+                ws.send(JSON.stringify(message));              
+                
+                break;
             case "room-song-add":
                 var song_id = data.song_id;
                 var song_uri = data.song_uri;
