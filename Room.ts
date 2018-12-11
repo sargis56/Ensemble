@@ -29,4 +29,13 @@ export default class Room{
     addTrack(track_id: string, track_title: string, userid: string , track_uri: string){
         this.tracks.push( { id: track_id, title: track_title, user_id: userid , uri: track_uri});
     }
+
+    removeTrack(track_id: string){
+        for( var i: number  = 0; i < this.tracks.length; i++){
+            console.log(this.tracks[i].id);
+            if(this.tracks[i].id === track_id){
+                this.tracks.splice(i, 1);
+            }
+        }
+    }
 }

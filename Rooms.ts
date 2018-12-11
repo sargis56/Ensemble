@@ -78,7 +78,7 @@ export default class Rooms{
             return true;
         }else{
             console.log("could not remove user from room with id", room_id);
-            return true;
+            return false;
         }
     }
 
@@ -89,7 +89,18 @@ export default class Rooms{
             return true;
         }else{
             console.log("could not add song");
+            return false;
+        }
+    }
+
+    removeSong(room_id: string, track_id: string){
+        if (this.roomList[room_id] != undefined) {
+            this.roomList[room_id].removeTrack(track_id);
+            console.log("removed song");
             return true;
+        }else{
+            console.log("could not remove song");
+            return false;
         }
     }
 
@@ -98,7 +109,7 @@ export default class Rooms{
             return this.roomList[room_id].tracks;
         }else{
             console.log("could not get playlist");
-            return true;
+            return false;
         }
     }
 

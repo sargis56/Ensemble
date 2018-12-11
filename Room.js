@@ -24,13 +24,14 @@ var Room = /** @class */ (function () {
     Room.prototype.addTrack = function (track_id, track_title, userid, track_uri) {
         this.tracks.push({ id: track_id, title: track_title, user_id: userid, uri: track_uri });
     };
-    
-    Room.prototype.removeFromTrack = function (track_id) {           ///////////////////////
-        this.tracks = this.tracks.filter(function(item) { 
-            return item !== (track_id);
-        });
+    Room.prototype.removeTrack = function (track_id) {
+        for (var i = 0; i < this.tracks.length; i++) {
+            console.log(this.tracks[i].id);
+            if (this.tracks[i].id === track_id) {
+                this.tracks.splice(i, 1);
+            }
+        }
     };
-
     return Room;
 }());
 exports.default = Room;
