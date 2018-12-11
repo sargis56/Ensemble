@@ -114,9 +114,24 @@ const wss = new WebSocket.Server({
     server: app,
     rejectUnauthorized: false
 });
+function noop() {}
 
+function heartbeat() {
+  this.isAlive = true;
+}
+
+const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+      if (ws.isAlive === false) return ws.terminate();
+  
+      ws.isAlive = false;
+      ws.ping(noop);
+    });
+  }, 30000);
 
 wss.on('connection', function connection(ws) {
+    ws.on('pong',  heartbeat);
+
     ws.on('message', function incoming(message) {
         console.log(message);
 
